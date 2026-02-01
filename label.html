@@ -79,7 +79,7 @@
       const routeText = o.route?.toLowerCase() === 'central' ? 'C-line' : 'P-line';
       const getProteinName = (name) => {
           if (name === "aminoven") return "10% Aminoven infant";
-          if (name === "amiparen") return "10% Amiparen";
+          if (name === "amiparen") return "10% Aminoven infant"; // ปรับตามที่แจ้ง amiparen >> 10% Aminoven infant
           if (name === "aminoplasmal") return "15% Aminoplasmal";
           return name;
       };
@@ -109,14 +109,18 @@
               <tr><td>15% KCl (K)</td><td class="text-right"><b><input class="vol-input" value="${getV(o.k_vol)}"></b> ml</td></tr>
               <tr><td>50% MgSO4</td><td class="text-right"><b><input class="vol-input" value="${getV(o.mg_vol)}"></b> ml</td></tr>
             </table>
-            <div class="text-right font-bold text-[10px] mt-0.5 italic">Srinagarind Hospital Pharmacy</div>
           </div>
         `;
       } else {
-        const cal = (parseFloat(o.total_calories) / div).toFixed(1);
-        const npc = ((((parseFloat(o.dex_vol) * 0.5) * 3.4) + (parseFloat(o.fat_vol_base) * 2)) / div).toFixed(1);
-        const nitrogen = (((parseFloat(o.protein_target) * parseFloat(o.bw)) / 6.25) / div).toFixed(2);
-        const npcn = nitrogen > 0 ? Math.round(npc / nitrogen) : 0;
+        // ส่วนคำนวณ NPC:N (ใช้ค่า Total ต่อวัน)
+        const bw = parseFloat(o.bw) || 1;
+        const proteinGramsTotal = (parseFloat(o.protein_target) || 0) * bw;
+        const nitrogenTotal = proteinGramsTotal / 6.25;
+        const dexGramsTotal = (parseFloat(o.dex_vol) || 0) * 0.5;
+        const fatCalTotal = (parseFloat(o.fat_vol_base) || 0) * 2;
+        const npcCalTotal = (dexGramsTotal * 3.4) + fatCalTotal;
+        const npcnValue = (nitrogenTotal > 0) ? Math.round(npcCalTotal / nitrogenTotal) : 0;
+        const npcnDisplay = (npcnValue > 0) ? `${npcnValue}:1` : "-";
 
         return `
           <div class="sticker">
@@ -131,8 +135,8 @@
                <tr><td>Heparin (1u/ml)</td><td class="text-right"><b><input class="vol-input" value="${getV2(o.heparin_vol)}"></b> ml</td></tr>
             </table>
             <div class="grid grid-cols-2 gap-x-2 summary-text mt-1 border-t border-black pt-1">
-              <span>Calories: <b>${cal} kcal</b></span>
-              <span>NPC:N Ratio: <b>${npcn}:1</b></span>
+              <span>Total PN calories: <b>${o.total_calories} kcal</b></span>
+              <span>NPC:N Ratio: <b>${npcnDisplay}</b></span>
               <span>% Glucose: <b>${o.dextrose_percent} %</b></span>
               <span>GIR: <b>${o.gir_result}</b></span>
               <span class="col-span-2">Osmolarity: <b>${o.final_osmolarity} mOsmol/L</b></span>
