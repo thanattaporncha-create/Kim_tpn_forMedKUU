@@ -105,11 +105,11 @@
               <tr><td>1. Sterile Water for Injection</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.water_net)}"></b> ml</td></tr>
               <tr><td>2. 50% Dextrose</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.dex_vol)}"></b> ml</td></tr>
               <tr><td>3. ${getProteinName(o.protein_product_name)}</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.protein_vol)}"></b> ml</td></tr>
-              <tr><td>4. 10% Ca Gluconate</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.ca_vol)}"></b> ml</td></tr>
-              <tr><td>5. Glycophos (P)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.phos_vol)}"></b> ml</td></tr>
-              <tr><td>6. 3% NaCl (Na)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.na_vol)}"></b> ml</td></tr>
-              <tr><td>7. 15% KCl (K)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.k_vol)}"></b> ml</td></tr>
-              <tr><td>8. 50% MgSO4</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.mg_vol)}"></b> ml</td></tr>
+              <tr><td>4. Glycophos (P)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.phos_vol)}"></b> ml</td></tr>
+              <tr><td>5. 3% NaCl (Na)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.na_vol)}"></b> ml</td></tr>
+              <tr><td>6. 15% KCl (K)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.k_vol)}"></b> ml</td></tr>
+              <tr><td>7. 50% MgSO4</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.mg_vol)}"></b> ml</td></tr>
+              <tr><td>8. 10% Ca Gluconate</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.ca_vol)}"></b> ml</td></tr>
             </table>
           </div>
         `;
@@ -123,14 +123,6 @@
         const npcnValue = (nitrogenTotal > 0) ? Math.round(npcCalTotal / nitrogenTotal) : 0;
         const npcnDisplay = (npcnValue > 0) ? `${npcnValue}:1` : "-";
 
-        // รันเลขต่อจากแผ่นแรก (เริ่มที่ 9)
-        let secIdx = 9;
-        const otherName = o.additive_other_name;
-        const otherVol = parseFloat(o.additive_other_volume) || 0;
-        const otherRow = (otherName && otherVol > 0) 
-          ? `<tr><td>${secIdx++}. ${otherName}</td><td class="text-right"><b><input class="vol-input" value="${smartFix(otherVol)}"></b> ml</td></tr>` 
-          : "";
-
         return `
           <div class="sticker">
             <div class="header-info flex justify-between">
@@ -138,10 +130,10 @@
               <span>ขวดที่: ${bNum}/${bottleCount}</span>
             </div>
             <table>
-               <tr><td>${secIdx++}. Peditrace</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.peditrace_vol)}"></b> ml</td></tr>
-               <tr><td>${secIdx++}. Soluvit-N</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.soluvit_vol)}"></b> ml</td></tr>
-               ${otherRow}
-               <tr><td>${secIdx++}. Heparin (1u/ml)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.heparin_vol)}"></b> ml</td></tr>
+               <tr><td>9. Peditrace</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.peditrace_vol)}"></b> ml</td></tr>
+               <tr><td>10. Soluvit-N</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.soluvit_vol)}"></b> ml</td></tr>
+               <tr><td>11. ${o.additive_other_name || "อื่นๆ"}</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.additive_other_volume || 0)}"></b> ml</td></tr>
+               <tr><td>12. Heparin (1u/ml)</td><td class="text-right"><b><input class="vol-input" value="${smartFix(o.heparin_vol)}"></b> ml</td></tr>
             </table>
             <div class="grid grid-cols-2 gap-x-2 summary-text mt-1 border-t border-black pt-1">
               <span>Total PN calories: <b>${o.total_calories || 0} kcal</b></span>
