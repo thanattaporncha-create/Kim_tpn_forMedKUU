@@ -7,51 +7,20 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* กำหนดสีดำเป็นพื้นฐาน แต่สำหรับค่าที่เป็น input จะใช้ class .text-blue-input */
     * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.2; }
-    .text-blue-input { color: #1e40af !important; } /* สีน้ำเงินเข้มแบบเดียวกับ pt name */
-    
+    .text-blue-input { color: #1e40af !important; }
     @media print {
       @page { size: A4; margin: 10mm; }
       body { background-color: white; margin: 0; padding: 0; }
       .no-print { display: none !important; }
       .print-container { border: none !important; width: 100% !important; box-shadow: none !important; padding: 0 !important; }
-      .print-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        text-align: right;
-        font-size: 10px;
-        color: #666;
-        border-top: 1px solid #eee;
-        padding-top: 5px;
-      }
+      .print-footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: right; font-size: 10px; color: #666; border-top: 1px solid #eee; padding-top: 5px; }
     }
-
-    .print-container { 
-      width: 210mm; 
-      min-height: 277mm; 
-      margin: 0 auto; 
-      background: white; 
-      padding: 10mm; 
-      position: relative;
-    }
-
+    .print-container { width: 210mm; min-height: 277mm; margin: 0 auto; background: white; padding: 10mm; position: relative; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
     th, td { border: 1px solid #000; padding: 4px 6px; font-size: 11.5px; }
     th { background-color: #f2f2f2; font-weight: 800; text-transform: uppercase; }
-    
-    .section-header { 
-      background-color: #1e3a5f; 
-      color: white !important; 
-      padding: 4px 10px; 
-      font-weight: 800; 
-      font-size: 13px; 
-      margin-top: 10px; 
-      border-radius: 4px; 
-    }
-    
+    .section-header { background-color: #1e3a5f; color: white !important; padding: 4px 10px; font-weight: 800; font-size: 13px; margin-top: 10px; border-radius: 4px; }
     .category-row { background-color: #f9f9f9; font-weight: 800; font-size: 11px; }
     .patient-info-box { font-size: 13px; font-weight: 800; }
   </style>
@@ -157,108 +126,111 @@
 
     async function fetchOrderDetail() {
       const row = new URLSearchParams(window.location.search).get('row');
+      if (!row) return;
       try {
         const res = await fetch(`${API_URL}?action=getDataDetail&row_index=${row}`);
         const order = await res.json();
         if (order) displayReport(order);
-      } catch (e) { console.error("Error:", e); }
+      } catch (e) { 
+        console.error("Error:", e); 
+        alert("ดึงข้อมูลไม่สำเร็จค่ะคุณขิม ลองเช็คการ Deploy อีกรอบนะคะ");
+      }
     }
 
     function displayReport(o) {
-  // ข้อมูลพื้นฐาน (ใช้สีน้ำเงินเข้ม .text-blue-input)
-  document.getElementById('pDate').innerText = o.order_date ? new Date(o.order_date).toLocaleDateString('th-TH') : '-';
-  document.getElementById('pWard').innerText = o.ward || '-';
-  document.getElementById('pName').innerText = o.patient_name || '-';
-  document.getElementById('pHN').innerText = o.hn || '-';
-  document.getElementById('pBW').innerText = o.bw || '-';
-  document.getElementById('pRoute').innerText = o.route || '-';
-  document.getElementById('vol-pn').innerText = o.pn_volume || '0';
-  document.getElementById('rate-pn').innerText = o.rate_tpn || '0';
-  document.getElementById('genTime').innerText = new Date().toLocaleString('th-TH');
+      // ข้อมูลทั่วไป
+      document.getElementById('pDate').innerText = o.order_date ? new Date(o.order_date).toLocaleDateString('th-TH') : '-';
+      document.getElementById('pWard').innerText = o.ward || '-';
+      document.getElementById('pName').innerText = o.patient_name || '-';
+      document.getElementById('pHN').innerText = o.hn || '-';
+      document.getElementById('pBW').innerText = o.bw || '-';
+      document.getElementById('pRoute').innerText = o.route || '-';
+      document.getElementById('vol-pn').innerText = o.pn_volume || '0';
+      document.getElementById('rate-pn').innerText = o.rate_tpn || '0';
+      document.getElementById('genTime').innerText = new Date().toLocaleString('th-TH');
 
-  // Clinical Summary
-  document.getElementById('val-cal').innerText = (o.total_calories || 0) + ' kcal';
-  document.getElementById('val-cal-kg').innerText = (o.cal_per_kg || 0) + ' kcal/kg/day'; 
-  document.getElementById('val-osmol').innerText = (o.final_osmolarity || 0) + ' mOsm/L'; 
-  document.getElementById('val-gir').innerText = o.gir_result || '0';
+      // Clinical Summary (แก้ชื่อตัวแปรให้ตรงกับ Code.gs)
+      document.getElementById('val-cal').innerText = (o.total_calories || 0) + ' kcal';
+      document.getElementById('val-cal-kg').innerText = (o.cal_per_kg || 0) + ' kcal/kg/day'; 
+      document.getElementById('val-osmol').innerText = (o.final_osmolarity || 0) + ' mOsm/L'; 
 
-  const table = document.getElementById('tpnTable');
-  
-  const categories = [
-    { label: "Macronutrients", items: [
-      { n: o.protein_product_name === "aminoven" ? "10% Aminoven infant" : o.protein_product_name, d: `${o.protein_target} g/kg/day`, v: o.protein_vol, p: o.prep_protein_vol, note: "" },
-      { n: "50% Dextrose", d: `${o.dextrose_percent} %`, v: o.dex_vol, p: o.prep_dex_50_vol, note: `GIR: ${o.gir_result}` }
-    ]},
-    { label: "Electrolytes", items: [
-      { n: "- Glycophos (P)", d: `${o.phosphorus} mEq/kg/day`, v: o.phos_vol, p: o.prep_phos_vol, note: `Na from P: ${o.na_from_p_meq} mEq` },
-      { n: "- 3% NaCl", d: `${o.sodium} mEq/kg/day`, v: o.na_vol, p: o.prep_na_vol, note: "" },
-      { n: "- KCl", d: `${o.potassium} mEq/kg/day`, v: o.k_vol, p: o.prep_k_vol, note: "" },
-      { n: "- 50% MgSO4", d: `${o.magnesium} mmol/kg/day`, v: o.mg_vol, p: o.prep_mg_vol, note: "" },
-      { n: "- 10% Calcium Gluconate (Ca)", d: `${o.calcium} ml/kg/day`, v: o.ca_vol, p: o.prep_ca_vol, note: "" }
-    ]},
-    { label: "Vitamins & Trace Elements", items: [
-      { n: "- Soluvit N", d: "-", v: o.soluvit_vol, p: o.soluvit_vol, note: "" },
-      { n: "- Peditrace", d: "-", v: o.peditrace_vol, p: o.peditrace_vol, note: "" }
-    ]},
-    { label: "Additives", items: [
-      { n: `- Zinc Sulfate (Preterm)`, d: o.zinc_added === 'yes' ? 'Yes' : '-', v: o.zinc_vol, p: o.zinc_vol, note: "" },
-      { n: `- Heparin 1u/ml (conc. 500 units/ml)`, 
-        d: (o.heparin_units || '0').toString().replace(' units', ''), 
-        v: o.heparin_vol, p: o.heparin_vol, note: "" 
-      },
-      { n: `- ${o.additive_other_name || "Other Additive"}`, d: "-", v: o.additive_other_volume, p: o.additive_other_volume, note: "" }
-    ]},
-    { label: "Sterile Water", items: [
-      { n: "Sterile Water for Injection", d: "-", v: o.water_net, p: o.prep_water_vol, note: "" }
-    ]}
-  ];
+      const table = document.getElementById('tpnTable');
+      
+      const categories = [
+        { label: "Macronutrients", items: [
+          { n: o.protein_product_name === "aminoven" ? "10% Aminoven infant" : o.protein_product_name, d: `${o.protein_target} g/kg/day`, v: o.protein_vol, p: o.prep_protein_vol, note: "" },
+          { n: "50% Dextrose", d: `${o.dextrose_percent} %`, v: o.dex_vol, p: o.prep_dex_50_vol, note: `GIR: ${o.gir_result || '0'}` }
+        ]},
+        { label: "Electrolytes", items: [
+          { n: "- Glycophos (P)", d: `${o.phosphorus} mEq/kg/day`, v: o.phos_vol, p: o.prep_phos_vol, note: `Na from P: ${o.na_from_p_meq || '0'} mEq` },
+          { n: "- 3% NaCl", d: `${o.sodium} mEq/kg/day`, v: o.na_vol, p: o.prep_na_vol, note: "" },
+          { n: "- KCl", d: `${o.potassium} mEq/kg/day`, v: o.k_vol, p: o.prep_k_vol, note: "" },
+          { n: "- 50% MgSO4", d: `${o.magnesium} mmol/kg/day`, v: o.mg_vol, p: o.prep_mg_vol, note: "" },
+          { n: "- 10% Calcium Gluconate (Ca)", d: `${o.calcium} ml/kg/day`, v: o.ca_vol, p: o.prep_ca_vol, note: "" }
+        ]},
+        { label: "Vitamins & Trace Elements", items: [
+          { n: "- Soluvit N", d: "-", v: o.soluvit_vol, p: o.soluvit_vol, note: "" },
+          { n: "- Peditrace", d: "-", v: o.peditrace_vol, p: o.peditrace_vol, note: "" }
+        ]},
+        { label: "Additives", items: [
+          // Zinc Sulfate (เช็คชื่อฟิลด์จาก Code.gs)
+          { n: `- Zinc Sulfate (Preterm)`, d: o.zinc_vol > 0 ? 'Yes' : '-', v: o.zinc_vol, p: o.zinc_vol, note: "" },
+          // Heparin (ตัดคำว่า units ซ้ำ)
+          { n: `- Heparin 1u/ml (conc. 500 units/ml)`, d: (o.heparin_units || '0').toString().replace(' units', ''), v: o.heparin_vol, p: o.heparin_vol, note: "" },
+          { n: `- ${o.additive_other_name || "Other Additive"}`, d: "-", v: o.additive_other_volume, p: o.additive_other_volume, note: "" }
+        ]},
+        { label: "Sterile Water", items: [
+          { n: "Sterile Water for Injection", d: "-", v: o.water_net, p: o.prep_water_vol, note: "" }
+        ]}
+      ];
 
-  let tableHtml = "";
-  categories.forEach(cat => {
-    tableHtml += `<tr class="category-row"><td colspan="5" class="px-2 py-0.5">${cat.label}</td></tr>`;
-    cat.items.forEach(i => {
-      const val = parseFloat(i.v) || 0;
+      let tableHtml = "";
+      categories.forEach(cat => {
+        tableHtml += `<tr class="category-row"><td colspan="5" class="px-2 py-0.5">${cat.label}</td></tr>`;
+        cat.items.forEach(i => {
+          const val = parseFloat(i.v) || 0;
+          tableHtml += `
+            <tr class="${val === 0 ? 'text-gray-400' : ''}">
+              <td class="pl-4 font-bold">${i.n}</td>
+              <td class="text-center font-mono">${i.d || '-'}</td>
+              <td class="text-center font-black">${val} ml</td>
+              <td class="text-center font-bold text-blue-800 bg-blue-50/50">${i.p || 0} ml</td>
+              <td class="text-[10px] italic font-bold">${i.note}</td>
+            </tr>`;
+        });
+      });
+
       tableHtml += `
-        <tr class="${val === 0 ? 'text-gray-400' : ''}">
-          <td class="pl-4 font-bold">${i.n}</td>
-          <td class="text-center font-mono">${i.d || '-'}</td>
-          <td class="text-center font-black">${val} ml</td>
-          <td class="text-center font-bold text-blue-800 bg-blue-50/50">${i.p || 0} ml</td>
-          <td class="text-[10px] italic font-bold">${i.note}</td>
+        <tr class="bg-gray-800 text-white font-black">
+          <td class="px-4 py-2 text-sm uppercase text-white">TOTAL VOLUME (PN SOLUTION)</td>
+          <td class="text-center text-white">-</td>
+          <td class="text-center text-yellow-400 text-base">${o.pn_volume} ml</td>
+          <td class="text-center text-cyan-300 text-base">${o.pn_prep_total} ml</td>
+          <td class="text-[9px] italic text-white text-center"></td>
         </tr>`;
-    });
-  });
 
-  tableHtml += `
-    <tr class="bg-gray-800 text-white font-black">
-      <td class="px-4 py-2 text-sm uppercase text-white">TOTAL VOLUME (PN SOLUTION)</td>
-      <td class="text-center text-white">-</td>
-      <td class="text-center text-yellow-400 text-base">${o.pn_volume} ml</td>
-      <td class="text-center text-cyan-300 text-base">${o.pn_prep_total} ml</td>
-      <td class="text-[9px] italic text-white text-center"></td>
-    </tr>`;
+      table.innerHTML = tableHtml;
 
-  table.innerHTML = tableHtml;
-
-  if (parseFloat(o.fat_target) > 0 || parseFloat(o.total_fat_vit_flush) > 0) {
-    document.getElementById('fatSection').classList.remove('hidden');
-    const fatProd = o.fat_product_name === "smof" ? "20% SMOF lipid" : (o.fat_product_name === "intralipid" ? "20% Intralipid" : o.fat_product_name);
-    document.getElementById('fat-product').innerText = fatProd || '-';
-    const vitName = o.vit_product === "Infant" ? "Vitalipid Infant (Blue)" : "Vitalipid Adult (Pink)";
-    document.getElementById('fat-vita-label').innerText = vitName + ":";
-    document.getElementById('fat-vita').innerText = o.vitalipid_vol || '0';
-    const totalAdmin = parseFloat(o.total_fat_vit_flush) || 0;
-    const flushVal = parseFloat(o.flush_volume) || 0;
-    const vitaVal = parseFloat(o.vitalipid_vol) || 0;
-    const calculatedFatOnly = (totalAdmin - (flushVal + vitaVal)).toFixed(1);
-    document.getElementById('fat-vol-base').innerText = calculatedFatOnly;
-    document.getElementById('fat-flush').innerText = flushVal;
-    document.getElementById('fat-total-all').innerText = totalAdmin.toFixed(1);
-    document.getElementById('fat-rate-val').innerText = o.fat_rate || '0';
-    document.getElementById('fat-req').innerText = (o.fat_target || '0') + ' g/kg/day';
-    document.getElementById('fat-split').innerText = o.prep_split === 'split' ? 'แบ่งเตรียม 2 Syringe' : 'ไม่แบ่งเตรียม';
-  }
-}
+      // Fat Section
+      if (parseFloat(o.fat_target) > 0 || parseFloat(o.total_fat_vit_flush) > 0) {
+        document.getElementById('fatSection').classList.remove('hidden');
+        const fatProd = o.fat_product_name === "smof" ? "20% SMOF lipid" : (o.fat_product_name === "intralipid" ? "20% Intralipid" : o.fat_product_name);
+        document.getElementById('fat-product').innerText = fatProd || '-';
+        const vitName = o.vit_product === "Infant" ? "Vitalipid Infant (Blue)" : "Vitalipid Adult (Pink)";
+        document.getElementById('fat-vita-label').innerText = vitName + ":";
+        document.getElementById('fat-vita').innerText = o.vitalipid_vol || '0';
+        const totalAdmin = parseFloat(o.total_fat_vit_flush) || 0;
+        const flushVal = parseFloat(o.flush_volume) || 0;
+        const vitaVal = parseFloat(o.vitalipid_vol) || 0;
+        const calculatedFatOnly = (totalAdmin - (flushVal + vitaVal)).toFixed(1);
+        document.getElementById('fat-vol-base').innerText = calculatedFatOnly;
+        document.getElementById('fat-flush').innerText = flushVal;
+        document.getElementById('fat-total-all').innerText = totalAdmin.toFixed(1);
+        document.getElementById('fat-rate-val').innerText = o.fat_rate || '0';
+        document.getElementById('fat-req').innerText = (o.fat_target || '0') + ' g/kg/day';
+        document.getElementById('fat-split').innerText = o.prep_split === 'split' ? 'แบ่งเตรียม 2 Syringe' : 'ไม่แบ่งเตรียม';
+      }
+    }
   </script>
 </body>
 </html>
