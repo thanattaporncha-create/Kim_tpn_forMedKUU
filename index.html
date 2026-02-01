@@ -674,7 +674,7 @@ body {
               <span id="heparinUnits" class="text-sm font-bold text-pink-700">0</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-gray-500">Volume (÷500):</span>
+              <span class="text-xs font-medium text-gray-500">Volume (÷500)(ml):</span>
               <span id="heparinVolume" class="text-sm font-bold text-pink-700">0.00 ml</span>
             </div>
           </div>
@@ -1324,8 +1324,8 @@ const phosVolume = parseFloat(phosInput.value) || 0;
       const protProduct = document.querySelector('input[name="proteinProduct"]:checked').value;
       const proteinGrams = bw * proteinTarget;
      const proteinVolume = parseFloat(document.getElementById('proteinVolInput').value) || 0;
-      const dextroseVolume = roundToPlace((dextrosePercent * pnVolume * 2) / 100, 1);
-
+    // ใหม่: ดึงค่าจากช่องที่คำนวณไว้แล้วใน Macronutrient section มาใช้เลย เลขจะได้ตรงกัน
+const dextroseVolume = parseFloat(document.getElementById('dextroseVolInput').value) || 0;
      // --- 10. Water (Net) ---
       const allSubstances = proteinVolume + dextroseVolume + electrolytesVolume + soluvitVolume + peditraceVolume + zincVolume + otherVol;
       let calculatedWaterVolume = pnVolume - allSubstances;
@@ -1356,7 +1356,9 @@ const phosVolume = parseFloat(phosInput.value) || 0;
       document.getElementById('proteinVol').textContent = roundToPlace(proteinVolume, 1);
       document.getElementById('proteinCal').textContent = roundToPlace(proteinGrams * 4, 1);
       document.getElementById('dextroseVol').textContent = roundToPlace(dextroseVolume, 1);
-      document.getElementById('dextroseCal').textContent = roundToPlace((dextrosePercent * pnVolume / 100) * 3.4, 1);
+     // ใหม่: คำนวณจากปริมาตรที่โชว์ในตารางโดยตรง (Vol * 0.5 g/ml * 3.4 kcal/g)
+const dGramsForCal = dextroseVolume * 0.5;
+document.getElementById('dextroseCal').textContent = roundToPlace(dGramsForCal * 3.4, 1);
       
       document.getElementById('row-phos-vol').textContent = phosVolume;
       document.getElementById('row-na-vol').textContent = naClVolume;
@@ -1466,6 +1468,12 @@ const phosVolume = parseFloat(phosInput.value) || 0;
       const osmolWarningBox = document.getElementById('osmolWarning');
       osmolWarningBox.classList.toggle('hidden', !(currentRoute === 'peripheral' && totalOsmolValue > 900));
 
+     // --- คำนวณยอดรวมปริมาตรทั้งหมดในช่อง "สำหรับเตรียม" ---
+// รวม Macronutrients (ที่คำนวณใหม่จาก pnPrepVol) + Electrolytes + Vitamins + Additives + Water (Prep)
+const totalPrepVol = prepDextroseVol + roundToPlace(proteinVolume, 1) + electrolytesVolume + soluvitVolume + peditraceVolume + zincVolume + otherVol + finalPrepWaterVol;
+
+// ส่งค่าไปแสดงผลที่ช่อง totalPrepVolDisplay ในแถบสีเทาท้ายตาราง
+document.getElementById('totalPrepVolDisplay').textContent = roundToPlace(totalPrepVol, 1);
       calculateFatAdmin();
       updateOrderSummary();
     }
