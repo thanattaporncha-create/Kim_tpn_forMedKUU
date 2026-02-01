@@ -1418,20 +1418,28 @@ const phosVolume = parseFloat(phosInput.value) || 0;
           limitWarning.classList.add('hidden');
       }
 
-      // ยอดรวมสรุปท้ายตาราง (ใช้ยอดที่ปัดเศษแล้ว)
+     // --- แก้ไขจุดนี้: คำนวณยอดรวมจากตาราง (UI Data) ---
+
+      // 1. ดึงแคลอรี่จากโปรตีนและเดกซ์โทรสที่แสดงผลบนตารางสรุปแล้ว (ที่ปัดเศษแล้ว)
+      const pCalFromTable = parseFloat(document.getElementById('proteinCal').textContent) || 0;
+      const dCalFromTable = parseFloat(document.getElementById('dextroseCal').textContent) || 0;
+      
+      // 2. คำนวณแคลอรี่ไขมันจาก Fat Volume ที่ขิมแก้ปัดเศษแล้วบนหน้าจอ (2 kcal/ml)
+      const fVolInputVal = parseFloat(document.getElementById('fatVolume').value) || 0;
+      const fCalFromInput = fVolInputVal * 2;
+
+      // 3. แสดงยอดรวมแคลอรี่ PN (Pro + Dex) ในแถบสีเทาท้ายตาราง
+      document.getElementById('totalPNCal').textContent = roundToPlace(pCalFromTable + dCalFromTable, 1);
+
+      // 4. แสดงยอดรวมแคลอรี่ทั้งหมด (Total Calories/day) ในก้อนสรุปสีเขียวด้านล่าง
+      const finalTotalCal = pCalFromTable + dCalFromTable + fCalFromInput;
+      document.getElementById('totalCalDisplay').textContent = roundToPlace(finalTotalCal, 1);
+
+      // 5. คำนวณ Calories per kg (Kcal/day ÷ BW)
+      document.getElementById('calPerKg').textContent = bw > 0 ? roundToPlace(finalTotalCal / bw, 1) : '0.0';
+
+      // สรุปยอดรวม Volume PN สุทธิ (ห้ามลบ)
       document.getElementById('totalPNVol').textContent = roundToPlace(allSubstances + finalWaterVol, 1);
-      
-      const totalPrepEl = document.getElementById('totalPrepVolDisplay');
-      totalPrepEl.textContent = roundToPlace(allSubstancesPrep + finalPrepWaterVol, 1);
-      // ขยายยอดสรุปสีฟ้าอ่อนให้ตัวเบ้งๆ (text-2xl)
-      totalPrepEl.parentElement.className = "px-4 py-5 text-right font-mono text-cyan-300 bg-gray-700 text-2xl font-black";
-      
-      const totalPNCal = (proteinGrams * 4) + ((dextrosePercent * pnVolume / 100) * 3.4);
-      document.getElementById('totalPNCal').textContent = roundToPlace(totalPNCal, 1);
-      
-      const totalCal = totalPNCal + (bw * netFat * 10);
-      document.getElementById('totalCalDisplay').textContent = roundToPlace(totalCal, 1);
-      document.getElementById('calPerKg').textContent = bw > 0 ? roundToPlace(totalCal / bw, 1) : '0.0';
 
       // Osmolarity
       const protOsmol = pnPrepVol > 0 ? (proteinGrams * 10 * 1000 / pnPrepVol) : 0;
