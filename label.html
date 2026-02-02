@@ -19,26 +19,28 @@
     .sticker-small { width: 3.5in; height: 2.48in; padding: 1.1cm 0.25in 0.1in 0.25in; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
     
     table { width: 100%; font-size: 10.6px; border-collapse: collapse; border: 1.5px solid #000; }
-    td, th { border: 1.5px solid #000; padding: 1.6px 3px; vertical-align: middle; }
-    th { font-size: 10px; font-weight: 900; background: #e5e5e5; }
+    td, th { border: 1.5px solid #000; padding: 1.6px 3.5px; vertical-align: middle; }
+    th { font-size: 10px; font-weight: 900; background: #e5e5e5; text-align: center; }
     
-    /* ปรับพื้นหลัง 6-13 ให้เข้มขึ้น */
     .row-gray { background-color: #ececec !important; }
     .item-num { font-weight: 900; }
-    .item-name { font-weight: 400; font-size: 10.6px; width: 44%; }
+    /* จัดชิดซ้ายสำหรับรายการ */
+    .item-name { font-weight: 400; font-size: 10.6px; width: 44%; text-align: left; }
+    /* จัดกึ่งกลางสำหรับปริมาตรเตรียม */
     .item-prep { font-weight: 400; font-size: 9.8px; text-align: center; width: 26%; }
+    /* จัดชิดขวาสำหรับปริมาตรจริง */
     .item-vol { font-weight: 900; font-size: 11px; text-align: right; width: 30%; }
     
-    .header-info { font-size: 12.2px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 2px; }
+    .header-info { font-size: 12.2px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 2px; text-align: left; }
     .rate-box-inline { border: 3px solid #000; padding: 2px 8px; font-size: 15.5px; font-weight: 900; display: inline-block; }
-    .big-vol-row { font-size: 12px; font-weight: 900; background: #fff; }
+    .big-vol-row { font-size: 12px; font-weight: 900; background: #fff; text-align: left; }
     
-    /* ปรับแก๊งแคลอรี่ให้ตัวใหญ่ขึ้นและโปร่งขึ้น */
-    .summary-text { font-size: 11.2px; font-weight: 800; margin-top: 5px; line-height: 1.4; }
+    /* ปรับแก๊งแคลอรี่ให้อ่านง่ายตามคำสั่ง */
+    .summary-text { font-size: 11.4px; font-weight: 800; margin-top: 5px; line-height: 1.4; text-align: left; }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen pb-20 text-center">
-  <div class="max-w-4xl mx-auto py-8 px-4 no-print">
+<body class="bg-slate-100 min-h-screen pb-20">
+  <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div id="card-pn" onclick="selectSection('pn')" class="bg-white p-5 rounded-3xl border-4 border-gray-100 cursor-pointer transition-all hover:border-blue-400">
         <h3 class="font-black text-lg">PN BIG LABEL</h3>
@@ -107,8 +109,9 @@
       const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
       const vPerB = (parseFloat(o.pn_volume) || 0) / div;
       const bw = parseFloat(o.bw) || 1;
-      const nT = ((parseFloat(o.protein_target) || 0) * bw) / 6.25;
-      const npcT = (parseFloat(o.total_calories) || 0) - (((parseFloat(o.protein_target) || 0) * bw) * 4);
+      const protG = (parseFloat(o.protein_target) || 0) * bw;
+      const nT = protG / 6.25;
+      const npcT = (parseFloat(o.total_calories) || 0) - (protG * 4);
       const npcn = nT > 0 ? Math.round(npcT / nT) + ":1" : "-";
       
       const getProtName = (n) => {
@@ -137,8 +140,8 @@
           <tr class="row-gray"><td class="item-name"><span class="item-num">11.</span> Soluvit-N</td><td class="item-prep">-</td><td class="item-vol">${smartFix(o.soluvit_vol, div)} ml</td></tr>
           <tr class="row-gray"><td class="item-name"><span class="item-num">12.</span> อื่นๆ</td><td class="item-prep">-</td><td class="item-vol">${smartFix(o.additive_other_volume, div)} ml</td></tr>
           <tr class="row-gray"><td class="item-name"><span class="item-num">13.</span> Heparin (1u/ml)</td><td class="item-prep">-</td><td class="item-vol">${smartFix(o.heparin_vol, div)} ml</td></tr>
-          <tr class="big-vol-row"><td colspan="2">Total PN vol:</td><td class="item-vol">${smartFix(vPerB)} ml</td></tr>
-          <tr class="big-vol-row"><td colspan="2">Total + ไล่สาย 30ml:</td><td class="item-vol">${smartFix(vPerB + 30)} ml</td></tr>
+          <tr class="big-vol-row"><td colspan="2" style="text-align:left;">Total PN vol:</td><td class="item-vol">${smartFix(vPerB)} ml</td></tr>
+          <tr class="big-vol-row"><td colspan="2" style="text-align:left;">Total + ไล่สาย 30ml:</td><td class="item-vol">${smartFix(vPerB + 30)} ml</td></tr>
         </table>
         
         <div class="summary-text border-t-2 border-black pt-1 grid grid-cols-2">
@@ -147,7 +150,7 @@
           <span class="col-span-2">Osmolarity: ${o.final_osmolarity} mOsmol/L</span>
         </div>
         <div class="flex justify-between items-end mt-2">
-          <div class="rate-box-inline">rate: ${o.rate_tpn} ml/hr</div>
+          <div class="rate-box-inline">Rate: ${o.rate_tpn} ml/hr</div>
           <div class="text-[10px] text-right font-black leading-tight">หมดอายุ: ${formatThaiDate(exp)}<br>เวลา 18.00 น.</div>
         </div>
       </div>`;
@@ -161,15 +164,15 @@
       const vSmof = tSyr - vVit - vFlu;
       const vitName = o.vit_product?.toLowerCase() === "infant" ? "Vitalipid N-Infant" : (o.vit_product?.toLowerCase() === "adult" ? "Vitalipid N-Adult" : o.vit_product);
       return `<div class="sticker sticker-small">
-        <div class="header-info border-none pb-0 text-[11px]">HN: ${o.hn} - ${o.patient_name}</div>
-        <div class="header-info border-none pt-0 text-[13px] font-black">Ward: ${o.ward}</div>
+        <div class="header-info border-none pb-0 text-[11px] text-left">HN: ${o.hn} - ${o.patient_name}</div>
+        <div class="header-info border-none pt-0 text-[13px] font-black text-left">Ward: ${o.ward}</div>
         <div class="header-info text-center py-0.5 mb-1 uppercase text-[11.2px]">FAT INFUSION (Syr. ${fNum}/${div})</div>
         <table class="text-[11.2px]">
           <tr><td class="item-name">Fat: ${o.fat_product_name === 'smof' ? '20% SMOF lipid' : o.fat_product_name}</td><td class="item-vol">${smartFix(vSmof)} ml</td></tr>
           <tr><td class="item-name">Added: ${vitName || '-'}</td><td class="item-vol">${smartFix(vVit)} ml</td></tr>
           <tr><td class="item-name">Flush (ไล่สาย)</td><td class="item-vol">${smartFix(vFlu)} ml</td></tr>
         </table>
-        <div class="flex justify-between items-center mt-2"><div class="rate-box-inline">rate: ${o.fat_rate} ml/hr</div><div class="text-[9px] text-right">Total: ${smartFix(tSyr)} ml<br>${formatThaiDate(o.order_date)}</div></div>
+        <div class="flex justify-between items-center mt-2"><div class="rate-box-inline">Rate: ${o.fat_rate} ml/hr</div><div class="text-[9px] text-right font-black">Total: ${smartFix(tSyr)} ml<br>${formatThaiDate(o.order_date)}</div></div>
         <div class="mt-1 text-[11.2px] border-t-2 border-black pt-1 font-black text-right uppercase">หมดอายุ: ${formatThaiDate(exp)} เวลา 18.00 น.</div>
       </div>`;
     }
@@ -177,10 +180,10 @@
     function createBag(o) {
       return `<div class="sticker sticker-small flex flex-col items-center justify-center text-center">
         <div class="text-6xl font-black mb-1">${o.ward}</div>
-        <div class="text-2xl font-black border-y-4 border-black w-full py-2 my-1 leading-tight">${o.patient_name}</div>
-        <div class="text-xl font-black">HN: ${o.hn}</div>
-        <div class="text-lg uppercase font-black">วันที่เตรียม: ${formatThaiDate(o.order_date)}</div>
-        <div class="text-xl font-black mt-2 bg-black text-white px-6 py-1 rounded-full">(เก็บในตู้เย็น 2-8° C)</div>
+        <div class="text-2xl font-black border-y-4 border-black w-full py-2 my-1 leading-tight text-center">${o.patient_name}</div>
+        <div class="text-xl font-black text-center">HN: ${o.hn}</div>
+        <div class="text-lg uppercase font-black text-center">วันที่เตรียม: ${formatThaiDate(o.order_date)}</div>
+        <div class="text-xl font-black mt-2 bg-black text-white px-6 py-1 rounded-full text-center">(เก็บในตู้เย็น 2-8° C)</div>
       </div>`;
     }
   </script>
