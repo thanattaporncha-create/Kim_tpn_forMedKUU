@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Worksheet - Half A4 Vertical</title>
+  <title>TPN Worksheet - Final</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
@@ -13,35 +13,29 @@
       .sheet { box-shadow: none !important; border: 1px solid #000 !important; margin: 0 !important; }
     }
     .sheet {
-      width: 14.85cm;
-      height: 21cm; /* Half A4 Vertical */
-      padding: 0.6cm 0.8cm;
-      margin: 10px auto;
-      background: white;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      border: 1px solid #ccc;
-      position: relative;
+      width: 14.85cm; height: 21cm; padding: 0.5cm 0.7cm;
+      margin: 10px auto; background: white; border: 1px solid #000; position: relative;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
-    th, td { border: 1px solid #000; padding: 4px 6px; vertical-align: middle; }
-    th { background: #f2f2f2; font-weight: 800; }
-    .val-prep { font-weight: 800; font-size: 14px; text-align: right; }
-    .val-cumul { font-weight: 800; font-size: 14px; text-align: right; background: #ffffed; color: #d97706; }
-    .bag-badge { position: absolute; top: 1cm; right: 0.8cm; border: 4px solid red; color: red; padding: 5px 15px; font-size: 24px; font-weight: 900; transform: rotate(5deg); }
-    [contenteditable="true"]:hover { background: #fff9c4; outline: 1px dashed #999; }
+    table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 12.5px; }
+    th, td { border: 1px solid #000; padding: 3px 5px; vertical-align: middle; }
+    th { font-weight: 800; }
+    .val-prep { font-weight: 800; text-align: right; }
+    .val-cumul { font-weight: 800; text-align: right; }
+    .bag-badge { position: absolute; top: 0.4cm; left: 0.7cm; border: 2px solid #000; padding: 2px 8px; font-size: 18px; font-weight: 900; }
+    [contenteditable="true"]:hover { outline: 1px dashed #000; }
   </style>
 </head>
-<body class="bg-gray-100 pb-10">
+<body>
 
-  <div class="no-print max-w-2xl mx-auto my-5 p-4 bg-white rounded-2xl shadow-sm border flex items-center justify-between">
+  <div class="no-print p-4 bg-gray-100 flex justify-between items-center max-w-2xl mx-auto">
     <div class="flex items-center gap-4">
-        <span class="font-black">เลือกโหมดเตรียม:</span>
-        <select id="bagCount" onchange="renderAll()" class="p-2 border-2 border-blue-500 rounded-xl font-black">
+        <span class="font-bold">โหมด:</span>
+        <select id="bagCount" onchange="renderAll()" class="p-2 border border-black font-bold">
             <option value="1">เตรียม 1 ถุงปกติ</option>
             <option value="2">แบ่งเตรียม 2 ถุง (x2)</option>
         </select>
     </div>
-    <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded-full font-black hover:bg-blue-700">🖨️ พิมพ์</button>
+    <button onclick="window.print()" class="bg-black text-white px-6 py-2 font-bold">พิมพ์ WORKSHEET</button>
   </div>
 
   <div id="ws-container"></div>
@@ -72,106 +66,84 @@
     }
 
     function createSheet(o, div) {
-      const d = new Date(o.order_date);
-      const dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
+      const getVal = (v) => parseFloat(v || 0) / div;
       
-      // ดึงข้อมูลรายตัว (หารตามจำนวนถุง)
-      const vW_P = parseFloat(o.water_prep || 0) / div;
-      const vD_P = parseFloat(o.dex_prep || 0) / div;
-      const vProt = parseFloat(o.protein_vol || 0) / div;
-      const vPhos = parseFloat(o.phos_vol || 0) / div;
-      const vNa = parseFloat(o.na_vol || 0) / div;
-      const vK = parseFloat(o.k_vol || 0) / div;
-      const vMg = parseFloat(o.mg_vol || 0) / div;
-      const vCa = parseFloat(o.ca_vol || 0) / div;
-      const vPed = parseFloat(o.peditrace_vol || 0) / div;
-      const vZinc = parseFloat(o.zinc_vol || 0) / div;
-      const vSolu = parseFloat(o.soluvit_vol || 0) / div;
-      const vOther = parseFloat(o.additive_other_volume || 0) / div;
-      const vHep = parseFloat(o.heparin_vol || 0) / div;
+      // ดึงค่าตามชื่อคอลัมน์ที่คุณขิมแจ้ง
+      const vW_P = getVal(o.Prep_Water_Vol); 
+      const vD_P = getVal(o.Prep_Dex_50_Vol);
+      const vProt = getVal(o.protein_vol);
+      const vPhos = getVal(o.phos_vol);
+      const vNa = getVal(o.na_vol);
+      const vK = getVal(o.k_vol);
+      const vMg = getVal(o.mg_vol);
+      const vCa = getVal(o.ca_vol);
+      const vPed = getVal(o.peditrace_vol);
+      const vZinc = getVal(o.zinc_vol);
+      const vSolu = getVal(o.soluvit_vol);
+      const vOther = getVal(o.additive_other_volume);
+      const vHep = getVal(o.heparin_vol);
 
-      // คำนวณ Cumulative Sum (บวกสะสมทีละขั้น)
-      const c1 = vW_P;
-      const c2 = c1 + vD_P;
-      const c3 = c2 + vProt;
-      const c4 = c3 + vPhos;
-      const c5 = c4 + vNa;
-      const c6 = c5 + vK;
-      const c7 = c6 + vMg;
-      const c8 = c7 + vCa;
-      const c9 = c8 + vPed;
-      const c10 = c9 + vZinc;
-      const c11 = c10 + vSolu;
-      const c12 = c11 + vOther;
-      const c13 = c12 + vHep;
+      let currentSum = 0;
+      const calcCumul = (val) => { 
+        currentSum += val; 
+        return currentSum.toFixed(2); 
+      };
 
       return `
         <div class="sheet" contenteditable="true">
           ${div === 2 ? '<div class="bag-badge">PREP x 2 BAGS</div>' : ''}
           
-          <div class="border-b-4 border-black pb-2">
-            <h1 class="text-2xl font-black">TPN WORKSHEET</h1>
-            <div class="flex justify-between mt-1">
-              <div class="text-sm">
-                <p><strong>Name:</strong> ${o.patient_name}</p>
-                <p><strong>HN:</strong> ${o.hn} | <strong>BW:</strong> ${o.bw} kg</p>
-                <p><strong>Date:</strong> ${dateStr}</p>
-              </div>
-              <div class="text-right">
-                <p class="text-[10px] uppercase font-bold text-gray-400">Ward</p>
-                <p class="text-5xl font-black leading-none">${o.ward || '-'}</p>
-              </div>
+          <div class="border-b-2 border-black pb-1 mb-2 flex justify-between items-start">
+            <div>
+              <h1 class="text-xl font-black">TPN WORKSHEET</h1>
+              <p class="text-sm font-bold">${o.patient_name} (HN: ${o.hn})</p>
+              <p class="text-[11px]">BW: ${o.bw} kg | Date: ${new Date(o.order_date).toLocaleDateString('th-TH')}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-bold">WARD</p>
+              <p class="text-5xl font-black leading-none">${o.ward || '-'}</p>
             </div>
           </div>
 
           <table>
             <thead>
               <tr>
-                <th style="width: 8%;">No.</th>
-                <th>รายการสารอาหาร</th>
-                <th style="width: 20%;">Prep Vol</th>
+                <th style="width: 5%;">#</th>
+                <th style="text-align: left;">รายการสารอาหาร</th>
+                <th style="width: 22%;">Prep Vol (ml)</th>
                 <th style="width: 22%;">ถุงรวม (ml)</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td class="text-center">1</td><td>Sterile Water <span class="text-[9px] font-normal">(${smartFix(o.water_net, div)})</span></td><td class="val-prep">${smartFix(o.water_prep, div)}</td><td class="val-cumul">${c1.toFixed(2)}</td></tr>
-              <tr><td class="text-center">2</td><td>50% Dextrose <span class="text-[9px] font-normal">(${smartFix(o.dex_vol, div)})</span></td><td class="val-prep">${smartFix(o.dex_prep, div)}</td><td class="val-cumul">${c2.toFixed(2)}</td></tr>
-              <tr><td class="text-center">3</td><td>Amino Acid (Protein)</td><td class="val-prep">${smartFix(o.protein_vol, div)}</td><td class="val-cumul">${c3.toFixed(2)}</td></tr>
-              <tr><td class="text-center">4</td><td>Glycophos (P)</td><td class="val-prep">${smartFix(o.phos_vol, div)}</td><td class="val-cumul">${c4.toFixed(2)}</td></tr>
-              <tr><td class="text-center">5</td><td>3% NaCl (Na)</td><td class="val-prep">${smartFix(o.na_vol, div)}</td><td class="val-cumul">${c5.toFixed(2)}</td></tr>
-              <tr><td class="text-center">6</td><td>15% KCl (K)</td><td class="val-prep">${smartFix(o.k_vol, div)}</td><td class="val-cumul">${c6.toFixed(2)}</td></tr>
-              <tr><td class="text-center">7</td><td>50% MgSO4 (Mg)</td><td class="val-prep">${smartFix(o.mg_vol, div)}</td><td class="val-cumul">${c7.toFixed(2)}</td></tr>
-              <tr><td class="text-center">8</td><td>10% Ca Gluconate</td><td class="val-prep">${smartFix(o.ca_vol, div)}</td><td class="val-cumul">${c8.toFixed(2)}</td></tr>
-              <tr><td class="text-center">9</td><td>Peditrace / Tracutil</td><td class="val-prep">${smartFix(o.peditrace_vol, div)}</td><td class="val-cumul">${c9.toFixed(2)}</td></tr>
-              <tr><td class="text-center">10</td><td>Zinc Sulfate</td><td class="val-prep">${smartFix(o.zinc_vol, div)}</td><td class="val-cumul">${c10.toFixed(2)}</td></tr>
-              <tr><td class="text-center">11</td><td>Soluvit-N</td><td class="val-prep">${smartFix(o.soluvit_vol, div)}</td><td class="val-cumul">${c11.toFixed(2)}</td></tr>
-              <tr><td class="text-center">12</td><td>Additive อื่นๆ</td><td class="val-prep">${smartFix(o.additive_other_volume, div)}</td><td class="val-cumul">${c12.toFixed(2)}</td></tr>
-              <tr><td class="text-center">13</td><td>Heparin (1:1000)</td><td class="val-prep">${smartFix(o.heparin_vol, div)}</td><td class="val-cumul">${c13.toFixed(2)}</td></tr>
-              
-              <tr class="bg-gray-100">
-                <td colspan="2" class="text-right font-black">Total PN in Bag (ml)</td>
-                <td colspan="2" class="text-center text-xl font-black text-blue-800">${smartFix(o.pn_volume, div)}</td>
+              <tr><td class="text-center">1</td><td>Sterile Water <small>(${smartFix(o.water_net, div)})</small></td><td class="val-prep">${vW_P.toFixed(2)}</td><td class="val-cumul">${calcCumul(vW_P)}</td></tr>
+              <tr><td class="text-center">2</td><td>50% Dextrose <small>(${smartFix(o.dex_vol, div)})</small></td><td class="val-prep">${vD_P.toFixed(2)}</td><td class="val-cumul">${calcCumul(vD_P)}</td></tr>
+              <tr><td class="text-center">3</td><td>Amino Acid (Protein)</td><td class="val-prep">${vProt.toFixed(2)}</td><td class="val-cumul">${calcCumul(vProt)}</td></tr>
+              <tr><td class="text-center">4</td><td>Glycophos (P)</td><td class="val-prep">${vPhos.toFixed(2)}</td><td class="val-cumul">${calcCumul(vPhos)}</td></tr>
+              <tr><td class="text-center">5</td><td>3% NaCl (Na)</td><td class="val-prep">${vNa.toFixed(2)}</td><td class="val-cumul">${calcCumul(vNa)}</td></tr>
+              <tr><td class="text-center">6</td><td>15% KCl (K)</td><td class="val-prep">${vK.toFixed(2)}</td><td class="val-cumul">${calcCumul(vK)}</td></tr>
+              <tr><td class="text-center">7</td><td>50% MgSO4 (Mg)</td><td class="val-prep">${vMg.toFixed(2)}</td><td class="val-cumul">${calcCumul(vMg)}</td></tr>
+              <tr><td class="text-center">8</td><td>10% Ca Gluconate</td><td class="val-prep">${vCa.toFixed(2)}</td><td class="val-cumul">${calcCumul(vCa)}</td></tr>
+              <tr><td class="text-center">9</td><td>Peditrace / Tracutil</td><td class="val-prep">${vPed.toFixed(2)}</td><td class="val-cumul">${calcCumul(vPed)}</td></tr>
+              <tr><td class="text-center">10</td><td>Zinc Sulfate</td><td class="val-prep">${vZinc.toFixed(2)}</td><td class="val-cumul">${calcCumul(vZinc)}</td></tr>
+              <tr><td class="text-center">11</td><td>Soluvit-N</td><td class="val-prep">${vSolu.toFixed(2)}</td><td class="val-cumul">${calcCumul(vSolu)}</td></tr>
+              <tr><td class="text-center">12</td><td>Additive อื่นๆ</td><td class="val-prep">${vOther.toFixed(2)}</td><td class="val-cumul">${calcCumul(vOther)}</td></tr>
+              <tr><td class="text-center">13</td><td>Heparin (1:1000)</td><td class="val-prep">${vHep.toFixed(2)}</td><td class="val-cumul">${calcCumul(vHep)}</td></tr>
+              <tr class="font-black text-sm">
+                <td colspan="2" class="text-right">Total PN Prep in Bag:</td>
+                <td colspan="2" class="text-center border-l-2 border-black text-lg">${smartFix(o.PN_Prep_Total, div)} ml</td>
               </tr>
             </tbody>
           </table>
 
-          <div class="mt-4 border-t border-black pt-2">
-            <h3 class="font-bold underline text-sm">Fat Section:</h3>
-            <div class="grid grid-cols-2 text-xs mt-1">
-              <div>
-                <p>Product: ${o.fat_product_name || 'N/A'}</p>
-                <p>Volume: ${smartFix(o.total_fat_vit_flush, div)} ml</p>
-              </div>
-              <div class="text-right">
-                <p>Rate: ${o.fat_rate} ml/hr</p>
-                <p>Flush: ${smartFix(o.flush_volume, div)} ml</p>
-              </div>
+          <div class="mt-4 border-t border-black pt-2 flex justify-between">
+            <div class="text-[10px]">
+                <strong>Fat:</strong> ${o.fat_product_name || '-'} | Vol: ${smartFix(o.total_fat_vit_flush, div)} ml<br>
+                Rate: ${o.fat_rate} ml/hr | Prep BW: ${o.bw} kg
             </div>
-          </div>
-
-          <div class="absolute bottom-6 left-8 right-8 flex justify-between text-center">
-            <div><div class="w-28 border-b border-black"></div><p class="text-[10px] mt-1">คนเตรียม</p></div>
-            <div><div class="w-28 border-b border-black"></div><p class="text-[10px] mt-1">คนตรวจ</p></div>
+            <div class="flex gap-4 text-center">
+                <div><div class="w-24 border-b border-black"></div><p class="text-[9px]">คนเตรียม</p></div>
+                <div><div class="w-24 border-b border-black"></div><p class="text-[9px]">คนตรวจ</p></div>
+            </div>
           </div>
         </div>`;
     }
