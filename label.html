@@ -155,12 +155,12 @@
         </table>
         
         <div class="footer-container">
-          <div class="summary-stack">
-            <div>Total calories (รวม fat): <span class="summary-val">${totalCalories} kcal/day</span></div>
-            <div>PN calories: <span class="summary-val">${pnCaloriesOnly.toFixed(1)} kcal/day</span></div>
-            <div>% Glucose: <span class="summary-val">${o.dextrose_percent}%</span> &nbsp;&nbsp; GIR: <span class="summary-val">${o.gir_result}</span></div>
-            <div>Osmolarity: <span class="summary-val">${o.final_osmolarity} mOsmol/L</span></div>
-          </div>
+    <div class="summary-stack" style="line-height: 2.0 !important;">
+        <div>Total calories (รวม fat): <span class="summary-val">${totalCalories} kcal/day</span></div>
+        <div>PN calories: <span class="summary-val">${pnCaloriesOnly.toFixed(1)} kcal/day</span></div>
+        <div>% Glucose: <span class="summary-val">${o.dextrose_percent}%</span> &nbsp;&nbsp; GIR: <span class="summary-val">${o.gir_result}</span></div>
+        <div>Osmolarity: <span class="summary-val">${o.final_osmolarity} mOsmol/L</span></div>
+    </div>
           
           <div class="info-box-right">
             <div class="rate-box-final">Rate: ${o.rate_tpn} ml/hr</div>
