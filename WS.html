@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>TPN Preparation Worksheet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Sarabun', sans-serif; color: #000; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; padding: 0; }
+      .sheet { box-shadow: none !important; border: none !important; margin: 0 !important; }
+    }
+    .sheet {
+      width: 21cm;
+      min-height: 29.7cm;
+      padding: 1.5cm;
+      margin: 10px auto;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border: 1px solid #eee;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th, td { border: 1px solid #000; padding: 8px 12px; vertical-align: middle; }
+    th { background: #f2f2f2; font-weight: 800; text-align: center; }
+    .val-cell { text-align: right; font-weight: 700; font-size: 1.1em; }
+    .check-box { width: 20px; height: 20px; border: 1px solid #000; display: inline-block; }
+  </style>
+</head>
+<body class="bg-gray-100 pb-20">
+
+  <div class="no-print fixed bottom-6 right-6 flex gap-3">
+    <button onclick="window.print()" class="bg-slate-900 text-white px-8 py-3 rounded-full font-black shadow-2xl hover:scale-105 transition-transform">🖨️ พิมพ์ Worksheet</button>
+  </div>
+
+  <div id="ws-content">
+    </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwAXIgHNvWpROWj74igzeK5nxaq2nSjFOeXrxgLILxJBhkr8HYz6asFsRPVJNNX7lFK/exec';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const row = urlParams.get('row');
+      if (row) {
+        const res = await fetch(`${API_URL}?action=getDataDetail&row_index=${row}`);
+        const data = await res.json();
+        renderWorksheet(data);
+      }
+    });
+
+    function renderWorksheet(o) {
+      const container = document.getElementById('ws-content');
+      const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+      
+      // คำนวณยอดรวมที่ต้องเตรียมจริง (สารน้ำ + Flush 30ml)
+      const totalPNPrep = (parseFloat(o.pn_volume) || 0) + 30;
+      const totalFatPrep = (parseFloat(o.total_fat_vit_flush) || 0);
+
+      container.innerHTML = `
+        <div class="sheet">
+          <div class="flex justify-between items-start border-b-4 border-black pb-4">
+            <div>
+              <h1 class="text-3xl font-black">TPN WORKSHEET</h1>
+              <p class="text-lg font-bold">หน่วยเตรียมยาสารอาหารทางหลอดเลือดดำ</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold">วันที่เตรียม: ${today}</p>
+              <p class="text-xl font-black">Ward: ${o.ward || '-'}</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 my-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div>
+              <p class="text-sm text-gray-600">ชื่อ-นามสกุลผู้ป่วย</p>
+              <p class="text-xl font-black">${o.patient_name}</p>
+              <p class="font-bold">HN: ${o.hn} | อายุ: ${o.age || '-'} ปี | BW: ${o.bw} kg</p>
+            </div>
+            <div class="text-right border-l pl-4">
+              <p class="text-sm text-gray-600">การให้สารอาหาร</p>
+              <p class="text-lg font-bold text-blue-800">Route: ${o.route === 'central' ? 'Central Line' : 'Peripheral Line'}</p>
+              <p class="font-bold">Rate: ${o.rate_tpn} ml/hr</p>
+            </div>
+          </div>
+
+          <h2 class="text-xl font-black mb-2 underline">1. ส่วนประกอบ PN (Total PN Vol: ${o.pn_volume} ml)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 10%;">Check</th>
+                <th style="width: 50%; text-align: left;">รายการสารน้ำ/ยา</th>
+                <th style="width: 20%;">ปริมาตร (ml)</th>
+                <th style="width: 20%;">เตรียมจริง (+Flush)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${renderRow("Sterile Water", o.water_net)}
+              ${renderRow("50% Dextrose", o.dex_vol)}
+              ${renderRow(o.protein_product_name || "Protein", o.protein_vol)}
+              ${renderRow("Glycophos", o.phos_vol)}
+              ${renderRow("3% NaCl", o.na_vol)}
+              ${renderRow("15% KCl", o.k_vol)}
+              ${renderRow("50% MgSO4", o.mg_vol)}
+              ${renderRow("10% Ca Gluconate", o.ca_vol)}
+              ${renderRow("Peditrace / Tracutil", o.peditrace_vol)}
+              ${renderRow("Zinc Sulfate", o.zinc_vol)}
+              ${renderRow("Soluvit-N", o.soluvit_vol)}
+              ${renderRow("Heparin (1:1000)", o.heparin_vol)}
+              ${renderRow("อื่นๆ", o.additive_other_volume)}
+              <tr class="bg-gray-50">
+                <td colspan="3" class="text-right font-black">ปริมาตรรวมที่ต้องดูดใส่ถุง (ml)</td>
+                <td class="val-cell text-blue-700" style="font-size: 1.4em;">${totalPNPrep.toFixed(1)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="mt-8">
+            <h2 class="text-xl font-black mb-2 underline">2. ส่วนประกอบ FAT (Total Fat Vol: ${o.fat_volume || 0} ml)</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 10%;">Check</th>
+                  <th style="width: 50%; text-align: left;">รายการ</th>
+                  <th style="width: 20%;">ปริมาตร (ml)</th>
+                  <th style="width: 20%;">Rate (ml/hr)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${renderRow(o.fat_product_name || "Intralipid/SMOF", (parseFloat(o.total_fat_vit_flush) - parseFloat(o.vitalipid_vol) - parseFloat(o.flush_volume)))}
+                ${renderRow("Vitalipid N (Adult/Infant)", o.vitalipid_vol)}
+                ${renderRow("NSS (Flush)", o.flush_volume)}
+                <tr class="bg-gray-50">
+                  <td colspan="2" class="text-right font-black">รวมปริมาตร Fat Syr. (ml)</td>
+                  <td class="val-cell text-amber-700">${totalFatPrep.toFixed(1)}</td>
+                  <td class="val-cell">${o.fat_rate || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-10 grid grid-cols-3 gap-8 text-center pt-10 border-t border-dashed border-gray-400">
+            <div>
+              <div class="border-b border-black mb-2"></div>
+              <p class="text-sm">ผู้เตรียม (Pharmacist/Asst.)</p>
+            </div>
+            <div>
+              <div class="border-b border-black mb-2"></div>
+              <p class="text-sm">ผู้ตรวจสอบ (Pharmacist)</p>
+            </div>
+            <div>
+              <div class="border-b border-black mb-2"></div>
+              <p class="text-sm">ผู้จ่ายยา</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRow(label, val) {
+      const num = parseFloat(val) || 0;
+      if (num === 0 && label === "อื่นๆ") return ""; // ซ่อนถ้าไม่มี "อื่นๆ"
+      return `
+        <tr>
+          <td class="text-center"><div class="check-box"></div></td>
+          <td class="font-medium">${label}</td>
+          <td class="val-cell">${num.toFixed(2)}</td>
+          <td class="bg-gray-50"></td>
+        </tr>
+      `;
+    }
+  </script>
+</body>
+</html>
