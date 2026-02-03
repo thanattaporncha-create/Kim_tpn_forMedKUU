@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | Srinagarind Hospital</title>
+  <title>TPN Master Print | Final Polish | Srinagarind Hospital</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
@@ -28,12 +28,14 @@
     
     .edit-vol { border: none; background: transparent; text-align: right; width: 50px; font-weight: 800; outline: none; cursor: text; }
     
-    .header-info { font-size: 12.5px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 2px; }
+    /* Header: ชื่อคนไข้, Ward, Route ตัวโตเท่ากัน */
+    .header-info { font-size: 12.5px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 3px; }
+    .ward-route-info { font-size: 12.5px; font-weight: 800; border-bottom: 1px solid #000; margin-bottom: 2px; padding-bottom: 2px; }
     
     .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 103%; margin-left: -1.5%; margin-top: 5px; border-top: 1px solid #000; padding-top: 4px; }
     
-    /* ขยายฟอนต์ Summary ขึ้น 5% */
-    .summary-stack { font-size: 9.3px; font-weight: 400; line-height: 1.4; text-align: left; padding-left: 2px; }
+    /* ปรับ Summary ให้ฟอนต์โตขึ้นและโปร่งขึ้นอีก 2% */
+    .summary-stack { font-size: 9.3px; font-weight: 400; line-height: 1.42; text-align: left; padding-left: 2px; }
     .summary-val { font-weight: 800; }
 
     .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
@@ -116,8 +118,6 @@
       const totalCalories = parseFloat(o.total_calories) || 0;
       const fatCalories = (parseFloat(o.total_fat_vit_flush) * 2);
       const pnCaloriesOnly = totalCalories - fatCalories;
-      
-      // Logic ไล่สายตามจำนวนขวด
       const flushValue = 30 / div;
 
       const getProtName = (n) => {
@@ -129,8 +129,12 @@
       };
 
       return `<div class="sticker sticker-pn">
-        <div class="header-info flex justify-between"><span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span></div>
-        <div class="flex justify-between text-[11px] font-bold border-b border-black mb-1"><span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span></div>
+        <div class="header-info flex justify-between">
+          <span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span>
+        </div>
+        <div class="ward-route-info flex justify-between">
+          <span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span>
+        </div>
         <table>
           <thead><tr><th style="width: 75%;">รายการ</th><th style="width: 25%;">ปริมาตร</th></tr></thead>
           <tr><td class="item-name">1. Sterile Water</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.water_net, div)}"></td></tr>
