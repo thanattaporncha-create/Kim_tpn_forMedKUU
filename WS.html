@@ -2,11 +2,11 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Worksheet - Ultra Clear Version</title>
+  <title>TPN Worksheet - Bottom Aligned</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    /* เน้นความคมชัดและความใหญ่ */
+    /* เน้นความคมชัดและตำแหน่งตามสั่ง */
     * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.1; }
     @media print {
       .no-print { display: none !important; }
@@ -14,33 +14,46 @@
       .sheet { box-shadow: none !important; border: 1.5px solid #000 !important; margin: 0 !important; }
     }
     .sheet {
-      width: 14.85cm; height: 21cm; padding: 0.5cm 0.7cm;
-      margin: 10px auto; background: white; border: 1.5px solid #000; position: relative;
-      display: flex; flex-direction: column;
+      width: 14.85cm; 
+      height: 21cm; 
+      /* ปรับ padding ล่างให้เหลือ 0.3cm */
+      padding: 0.5cm 0.7cm 0.3cm 0.7cm; 
+      margin: 10px auto; 
+      background: white; 
+      border: 1.5px solid #000; 
+      position: relative;
+      display: flex; 
+      flex-direction: column;
+      /* ดันเนื้อหาทั้งหมดลงไปด้านล่าง */
+      justify-content: flex-end;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 5px; flex-grow: 1; table-layout: fixed; }
+    
+    /* คงขนาดตารางเดิม แต่ยกเลิก flex-grow เพื่อไม่ให้มันขยายเอง */
+    table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: fixed; flex-grow: 0; }
     th, td { border: 1.5px solid #000; padding: 5px 10px; vertical-align: middle; }
     
-    /* หัวตาราง */
     th { font-weight: 800; font-size: 16px; background: #fff; }
-    
-    /* รายการสารอาหาร - ปรับให้ใหญ่ขึ้น */
     .item-name { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
     .item-name small { font-size: 13px; font-weight: 400; }
     
-    /* ปริมาตรเตรียม */
     .val-prep { font-weight: 800; font-size: 24px; }
-    .text-left { text-align: left !important; }
-    .text-right { text-align: right !important; }
-    
-    /* ถุงรวม */
     .val-cumul { font-weight: 900; font-size: 24px; text-align: right; background: #fcfcfc; }
     
-    /* สีเทาสำหรับกลุ่ม Additive 6-13 */
     .row-gray { background-color: #f2f2f2 !important; }
+    .text-left { text-align: left !important; }
+    .text-right { text-align: right !important; }
 
     .bag-badge { border: 2.5px solid #000; padding: 2px 10px; font-size: 16px; font-weight: 900; display: inline-block; margin-bottom: 4px; }
-    .footer-sign { height: 3.5cm; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 1cm 0.8cm 1cm; }
+    
+    /* ปรับส่วนเซ็นชื่อให้กระชับ เพื่อรอรับการดันลงข้างล่าง */
+    .footer-sign { 
+      height: 3.0cm; 
+      display: flex; 
+      align-items: flex-end; 
+      justify-content: space-between; 
+      padding: 0 1cm 0.5cm 1cm; 
+    }
+    [contenteditable="true"]:hover { outline: 1px dashed #000; }
   </style>
 </head>
 <body class="bg-gray-100">
@@ -119,7 +132,7 @@
 
       return `
         <div class="sheet" contenteditable="true">
-          <div class="flex justify-between items-start mb-1">
+          <div class="flex justify-between items-start mb-1" style="margin-top: auto;">
              <div class="flex-1">
                 ${div === 2 ? '<div class="bag-badge">PREP x 2 BAGS</div>' : ''}
                 <h1 class="text-xl font-black italic leading-none">TPN WORKSHEET</h1>
