@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | Srinagarind Hospital | Final Layout</title>
+  <title>TPN Master Print | Final Polish | Srinagarind Hospital</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
@@ -15,20 +15,12 @@
       .sticker-pn { width: 8.5cm; height: 12cm; }
       .sticker-small { width: 3.5in; height: 2.48in; }
     }
-    /* คุม Padding ของแผ่น PN */
-    .sticker-pn { 
-      width: 8.5cm; height: 12cm; padding: 1.25cm 0.3cm 0.2cm 0.3cm; 
-      box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; 
-    }
-    .sticker-small { 
-      width: 3.5in; height: 2.48in; padding: 1.1cm 0.2in 0.1in 0.2in; 
-      box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; 
-    }
+    .sticker-pn { width: 8.5cm; height: 12cm; padding: 1.25cm 0.4cm 0.2cm 0.4cm; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
+    .sticker-small { width: 3.5in; height: 2.48in; padding: 1.1cm 0.25in 0.1in 0.25in; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
     
-    /* ตารางขยายข้างชิดขอบ และเพิ่มความสูง Row 2% */
-    table { width: 100%; font-size: 11px; border-collapse: collapse; border: 0.8px solid #000; }
-    td, th { border: 0.8px solid #000; padding: 2.2px 4px; vertical-align: middle; }
-    th { font-size: 10.5px; font-weight: 800; background: #f2f2f2; text-align: center; }
+    table { width: 103%; margin-left: -1.5%; font-size: 11px; border-collapse: collapse; border: 0.8px solid #000; }
+    td, th { border: 0.8px solid #000; padding: 1.8px 4px; vertical-align: middle; }
+    th { font-size: 10px; font-weight: 800; background: #f2f2f2; text-align: center; }
     
     .row-gray { background-color: #f6f6f6 !important; }
     .item-name { font-weight: 400; text-align: left; }
@@ -36,18 +28,18 @@
     
     .edit-vol { border: none; background: transparent; text-align: right; width: 50px; font-weight: 800; outline: none; cursor: text; }
     
-    /* Header Info */
+    /* Header: ชื่อคนไข้, Ward, Route ตัวโตเท่ากัน */
     .header-info { font-size: 12.5px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 3px; }
-    .ward-route-info { font-size: 12.5px; font-weight: 800; border-bottom: 1.2px solid #000; margin-bottom: 2px; padding-bottom: 2px; }
+    .ward-route-info { font-size: 12.5px; font-weight: 800; border-bottom: 1px solid #000; margin-bottom: 2px; padding-bottom: 2px; }
     
-    /* สรุปข้อมูลด้านล่าง: ระยะห่างบรรทัดกว้างขึ้นอีก 7% (Line-height 1.55) */
-    .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; margin-top: 6px; border-top: 1px solid #000; padding-top: 5px; }
-    .summary-stack { font-size: 9.3px; font-weight: 400; line-height: 1.55; text-align: left; padding-left: 2px; }
+    .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 103%; margin-left: -1.5%; margin-top: 5px; border-top: 1px solid #000; padding-top: 4px; }
+    
+    /* ปรับ Summary ให้ฟอนต์โตขึ้นและโปร่งขึ้นอีก 2% */
+    .summary-stack { font-size: 9.3px; font-weight: 400; line-height: 1.42; text-align: left; padding-left: 2px; }
     .summary-val { font-weight: 800; }
 
-    /* ย้าย Rate และ หมดอายุขึ้นมาด้านขวา */
-    .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .rate-box-final { border: 1.5px solid #000; padding: 2px 6px; font-size: 13px; font-weight: 800; display: inline-block; }
+    .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .rate-box-final { border: 1.5px solid #000; padding: 1.5px 5px; font-size: 12px; font-weight: 800; display: inline-block; white-space: nowrap; }
     .exp-text { font-size: 9.5px; text-align: right; font-weight: 800; line-height: 1.2; }
     
     .big-vol-row { font-size: 11.5px; font-weight: 800; background: #fff; }
@@ -58,7 +50,7 @@
   <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div id="card-pn" onclick="selectSection('pn')" class="bg-white p-5 rounded-3xl border-4 border-gray-100 cursor-pointer transition-all hover:border-blue-400">
-        <h3 class="font-black text-lg">PN BIG LABEL</h3>
+        <h3 class="font-black text-lg uppercase tracking-tight">PN BIG LABEL</h3>
         <div onclick="event.stopPropagation()"><select id="pnCount" onchange="renderAll()" class="mt-2 p-1 border rounded w-24"><option value="1">1 ขวด</option><option value="2">2 ขวด</option></select></div>
       </div>
       <div id="card-fat" onclick="selectSection('fat')" class="bg-white p-5 rounded-3xl shadow-sm border-4 border-gray-100 cursor-pointer transition-all hover:border-amber-400">
@@ -137,8 +129,12 @@
       };
 
       return `<div class="sticker sticker-pn">
-        <div class="header-info flex justify-between"><span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span></div>
-        <div class="ward-route-info flex justify-between"><span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span></div>
+        <div class="header-info flex justify-between">
+          <span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span>
+        </div>
+        <div class="ward-route-info flex justify-between">
+          <span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span>
+        </div>
         <table>
           <thead><tr><th style="width: 75%;">รายการ</th><th style="width: 25%;">ปริมาตร</th></tr></thead>
           <tr><td class="item-name">1. Sterile Water</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.water_net, div)}"></td></tr>
