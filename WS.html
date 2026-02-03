@@ -2,10 +2,11 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Worksheet - Final</title>
+  <title>TPN Worksheet - Half A4 Vertical (Fixed)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
+    /* เน้นขาวดำ ประหยัดหมึก และประหยัดพื้นที่ */
     * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.1; }
     @media print {
       .no-print { display: none !important; }
@@ -13,29 +14,30 @@
       .sheet { box-shadow: none !important; border: 1px solid #000 !important; margin: 0 !important; }
     }
     .sheet {
-      width: 14.85cm; height: 21cm; padding: 0.5cm 0.7cm;
+      width: 14.85cm; height: 21cm; padding: 0.6cm 0.8cm;
       margin: 10px auto; background: white; border: 1px solid #000; position: relative;
+      display: flex; flex-direction: column;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 12.5px; }
-    th, td { border: 1px solid #000; padding: 3px 5px; vertical-align: middle; }
-    th { font-weight: 800; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13.5px; }
+    th, td { border: 1px solid #000; padding: 4px 6px; vertical-align: middle; }
+    th { font-weight: 800; background: #fff; }
     .val-prep { font-weight: 800; text-align: right; }
-    .val-cumul { font-weight: 800; text-align: right; }
-    .bag-badge { position: absolute; top: 0.4cm; left: 0.7cm; border: 2px solid #000; padding: 2px 8px; font-size: 18px; font-weight: 900; }
+    .val-cumul { font-weight: 800; text-align: right; background: #fdfdfd; }
+    .bag-badge { border: 2px solid #000; padding: 2px 10px; font-size: 18px; font-weight: 900; display: inline-block; margin-bottom: 5px; }
     [contenteditable="true"]:hover { outline: 1px dashed #000; }
   </style>
 </head>
-<body>
+<body class="bg-gray-100 pb-10">
 
-  <div class="no-print p-4 bg-gray-100 flex justify-between items-center max-w-2xl mx-auto">
+  <div class="no-print max-w-2xl mx-auto my-5 p-4 bg-white rounded-2xl shadow-sm border flex items-center justify-between">
     <div class="flex items-center gap-4">
-        <span class="font-bold">โหมด:</span>
-        <select id="bagCount" onchange="renderAll()" class="p-2 border border-black font-bold">
+        <span class="font-black text-sm">การเตรียม:</span>
+        <select id="bagCount" onchange="renderAll()" class="p-2 border border-black font-bold text-sm">
             <option value="1">เตรียม 1 ถุงปกติ</option>
             <option value="2">แบ่งเตรียม 2 ถุง (x2)</option>
         </select>
     </div>
-    <button onclick="window.print()" class="bg-black text-white px-6 py-2 font-bold">พิมพ์ WORKSHEET</button>
+    <button onclick="window.print()" class="bg-black text-white px-6 py-2 font-bold text-sm hover:bg-gray-800 transition-all">🖨️ พิมพ์ WORKSHEET</button>
   </div>
 
   <div id="ws-container"></div>
@@ -48,15 +50,17 @@
       const urlParams = new URLSearchParams(window.location.search);
       const row = urlParams.get('row');
       if (row) {
-        const res = await fetch(`${API_URL}?action=getDataDetail&row_index=${row}`);
-        rawData = await res.json();
-        renderAll();
+        try {
+          const res = await fetch(`${API_URL}?action=getDataDetail&row_index=${row}`);
+          rawData = await res.json();
+          renderAll();
+        } catch (e) { console.error("Data fetch error", e); }
       }
     });
 
-    const smartFix = (v, div = 1) => {
-      let num = (parseFloat(v) || 0) / div;
-      return Number(Math.round(num * 100) / 100).toFixed(2);
+    const parseVal = (v, div = 1) => {
+      const num = parseFloat(v) || 0;
+      return num / div;
     };
 
     function renderAll() {
@@ -66,22 +70,22 @@
     }
 
     function createSheet(o, div) {
-      const getVal = (v) => parseFloat(v || 0) / div;
+      // ดึงค่าตามชื่อตัวแปรที่ Apps Script ส่งออกมา (ตัวพิมพ์เล็กทั้งหมด)
+      const vW_P = parseVal(o.prep_water_vol || o.water_net, div); 
+      const vD_P = parseVal(o.prep_dex_50_vol || o.dex_vol, div);
       
-      // ดึงค่าตามชื่อคอลัมน์ที่คุณขิมแจ้ง
-      const vW_P = getVal(o.Prep_Water_Vol); 
-      const vD_P = getVal(o.Prep_Dex_50_Vol);
-      const vProt = getVal(o.protein_vol);
-      const vPhos = getVal(o.phos_vol);
-      const vNa = getVal(o.na_vol);
-      const vK = getVal(o.k_vol);
-      const vMg = getVal(o.mg_vol);
-      const vCa = getVal(o.ca_vol);
-      const vPed = getVal(o.peditrace_vol);
-      const vZinc = getVal(o.zinc_vol);
-      const vSolu = getVal(o.soluvit_vol);
-      const vOther = getVal(o.additive_other_volume);
-      const vHep = getVal(o.heparin_vol);
+      const vProt = parseVal(o.prep_protein_vol || o.protein_vol, div);
+      const vPhos = parseVal(o.prep_phos_vol || o.phos_vol, div);
+      const vNa = parseVal(o.prep_na_vol || o.na_vol, div);
+      const vK = parseVal(o.prep_k_vol || o.k_vol, div);
+      const vMg = parseVal(o.prep_mg_vol || o.mg_vol, div);
+      const vCa = parseVal(o.prep_ca_vol || o.ca_vol, div);
+      
+      const vPed = parseVal(o.peditrace_vol, div);
+      const vZinc = parseVal(o.zinc_vol, div);
+      const vSolu = parseVal(o.soluvit_vol, div);
+      const vOther = parseVal(o.additive_other_volume, div);
+      const vHep = parseVal(o.heparin_vol, div);
 
       let currentSum = 0;
       const calcCumul = (val) => { 
@@ -91,32 +95,34 @@
 
       return `
         <div class="sheet" contenteditable="true">
-          ${div === 2 ? '<div class="bag-badge">PREP x 2 BAGS</div>' : ''}
+          <div class="flex justify-between items-start">
+             <div>
+                ${div === 2 ? '<div class="bag-badge">PREP x 2 BAGS</div>' : ''}
+                <h1 class="text-2xl font-black">TPN WORKSHEET</h1>
+             </div>
+             <div class="text-right">
+                <p class="text-[10px] font-bold">WARD</p>
+                <p class="text-5xl font-black leading-none">${o.ward || '-'}</p>
+             </div>
+          </div>
           
-          <div class="border-b-2 border-black pb-1 mb-2 flex justify-between items-start">
-            <div>
-              <h1 class="text-xl font-black">TPN WORKSHEET</h1>
-              <p class="text-sm font-bold">${o.patient_name} (HN: ${o.hn})</p>
-              <p class="text-[11px]">BW: ${o.bw} kg | Date: ${new Date(o.order_date).toLocaleDateString('th-TH')}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-[10px] font-bold">WARD</p>
-              <p class="text-5xl font-black leading-none">${o.ward || '-'}</p>
-            </div>
+          <div class="border-b-2 border-black pb-2 mb-1 mt-2">
+            <p class="text-lg font-black">${o.patient_name} (HN: ${o.hn})</p>
+            <p class="text-xs">BW: ${o.bw} kg | Date: ${new Date(o.order_date).toLocaleDateString('th-TH')}</p>
           </div>
 
           <table>
             <thead>
               <tr>
-                <th style="width: 5%;">#</th>
+                <th style="width: 8%;">#</th>
                 <th style="text-align: left;">รายการสารอาหาร</th>
                 <th style="width: 22%;">Prep Vol (ml)</th>
                 <th style="width: 22%;">ถุงรวม (ml)</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td class="text-center">1</td><td>Sterile Water <small>(${smartFix(o.water_net, div)})</small></td><td class="val-prep">${vW_P.toFixed(2)}</td><td class="val-cumul">${calcCumul(vW_P)}</td></tr>
-              <tr><td class="text-center">2</td><td>50% Dextrose <small>(${smartFix(o.dex_vol, div)})</small></td><td class="val-prep">${vD_P.toFixed(2)}</td><td class="val-cumul">${calcCumul(vD_P)}</td></tr>
+              <tr><td class="text-center">1</td><td>Sterile Water <small>(${parseVal(o.water_net, div).toFixed(2)})</small></td><td class="val-prep">${vW_P.toFixed(2)}</td><td class="val-cumul">${calcCumul(vW_P)}</td></tr>
+              <tr><td class="text-center">2</td><td>50% Dextrose <small>(${parseVal(o.dex_vol, div).toFixed(2)})</small></td><td class="val-prep">${vD_P.toFixed(2)}</td><td class="val-cumul">${calcCumul(vD_P)}</td></tr>
               <tr><td class="text-center">3</td><td>Amino Acid (Protein)</td><td class="val-prep">${vProt.toFixed(2)}</td><td class="val-cumul">${calcCumul(vProt)}</td></tr>
               <tr><td class="text-center">4</td><td>Glycophos (P)</td><td class="val-prep">${vPhos.toFixed(2)}</td><td class="val-cumul">${calcCumul(vPhos)}</td></tr>
               <tr><td class="text-center">5</td><td>3% NaCl (Na)</td><td class="val-prep">${vNa.toFixed(2)}</td><td class="val-cumul">${calcCumul(vNa)}</td></tr>
@@ -130,19 +136,20 @@
               <tr><td class="text-center">13</td><td>Heparin (1:1000)</td><td class="val-prep">${vHep.toFixed(2)}</td><td class="val-cumul">${calcCumul(vHep)}</td></tr>
               <tr class="font-black text-sm">
                 <td colspan="2" class="text-right">Total PN Prep in Bag:</td>
-                <td colspan="2" class="text-center border-l-2 border-black text-lg">${smartFix(o.PN_Prep_Total, div)} ml</td>
+                <td colspan="2" class="text-center border-l-2 border-black text-lg">${parseVal(o.pn_prep_total || o.pn_volume, div).toFixed(2)} ml</td>
               </tr>
             </tbody>
           </table>
 
-          <div class="mt-4 border-t border-black pt-2 flex justify-between">
+          <div class="mt-4 flex justify-between items-end flex-grow">
             <div class="text-[10px]">
-                <strong>Fat:</strong> ${o.fat_product_name || '-'} | Vol: ${smartFix(o.total_fat_vit_flush, div)} ml<br>
-                Rate: ${o.fat_rate} ml/hr | Prep BW: ${o.bw} kg
+                <p><strong>Fat:</strong> ${o.fat_product_name || '-'} | Vol: ${parseVal(o.total_fat_vit_flush, div).toFixed(2)} ml</p>
+                <p>Rate: ${o.fat_rate} ml/hr | Prep BW: ${o.bw} kg</p>
+                <p>Osmolarity: ${o.final_osmolarity || '-'} mOsmol/L</p>
             </div>
-            <div class="flex gap-4 text-center">
-                <div><div class="w-24 border-b border-black"></div><p class="text-[9px]">คนเตรียม</p></div>
-                <div><div class="w-24 border-b border-black"></div><p class="text-[9px]">คนตรวจ</p></div>
+            <div class="flex gap-6 mb-2">
+                <div class="text-center"><div class="w-20 border-b border-black"></div><p class="text-[9px] mt-1">คนเตรียม</p></div>
+                <div class="text-center"><div class="w-20 border-b border-black"></div><p class="text-[9px] mt-1">คนตรวจ</p></div>
             </div>
           </div>
         </div>`;
