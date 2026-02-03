@@ -2,31 +2,36 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Worksheet - Pro Version</title>
+  <title>TPN Worksheet - Super Table Version</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.05; }
+    * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.1; }
     @media print {
       .no-print { display: none !important; }
       body { background: white; margin: 0; }
       .sheet { box-shadow: none !important; border: 1px solid #000 !important; margin: 0 !important; }
     }
     .sheet {
-      width: 14.85cm; height: 21cm; padding: 0.8cm 1cm;
+      width: 14.85cm; height: 21cm; padding: 0.5cm 0.7cm;
       margin: 10px auto; background: white; border: 1px solid #000; position: relative;
       display: flex; flex-direction: column;
     }
-    /* ปรับขนาดตารางให้ใหญ่สะใจ */
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 16px; flex-grow: 1; }
-    th, td { border: 1px solid #000; padding: 6px 10px; vertical-align: middle; }
-    th { font-weight: 800; font-size: 15px; }
-    .val-prep { font-weight: 800; font-size: 18px; text-align: right; }
-    .val-cumul { font-weight: 800; font-size: 18px; text-align: right; }
-    .bag-badge { border: 3px solid #000; padding: 4px 15px; font-size: 20px; font-weight: 900; display: inline-block; margin-bottom: 8px; }
+    /* ขยายตารางขั้นสุด */
+    table { width: 100%; border-collapse: collapse; margin-top: 5px; flex-grow: 1; table-layout: fixed; }
+    th, td { border: 1.5px solid #000; padding: 4px 8px; vertical-align: middle; word-wrap: break-word; }
     
-    /* เว้นขอบล่าง 3.5 cm */
-    .footer-sign { height: 3.5cm; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 20px 20px 20px; }
+    /* ปรับขนาดฟอนต์ในตารางให้ใหญ่ขึ้น */
+    th { font-weight: 800; font-size: 15px; background: #fff; }
+    td { font-size: 17px; font-weight: 500; }
+    
+    .val-prep { font-weight: 800; font-size: 21px; text-align: right; }
+    .val-cumul { font-weight: 900; font-size: 22px; text-align: right; background: #f9f9f9; }
+    
+    .bag-badge { border: 2.5px solid #000; padding: 2px 10px; font-size: 16px; font-weight: 900; display: inline-block; margin-bottom: 4px; }
+    
+    /* บังคับระยะขอบล่าง 3.5 cm สำหรับเซ็นชื่อ */
+    .footer-sign { height: 3.5cm; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 1cm 0.8cm 1cm; border-top: 0; }
     [contenteditable="true"]:hover { outline: 1px dashed #000; }
   </style>
 </head>
@@ -34,32 +39,31 @@
 
   <div class="no-print p-4 bg-gray-200 flex justify-between items-center max-w-2xl mx-auto shadow-md">
     <div class="flex items-center gap-4">
-        <span class="font-bold">โหมดเตรียม:</span>
-        <select id="bagCount" onchange="renderAll()" class="p-2 border-2 border-black font-black bg-white">
-            <option value="1">เตรียม 1 ถุงปกติ</option>
-            <option value="2">แบ่งเตรียม 2 ถุง (x2)</option>
+        <span class="font-bold">โหมด:</span>
+        <select id="bagCount" onchange="renderAll()" class="p-1 border-2 border-black font-black bg-white rounded">
+            <option value="1">1 ถุงปกติ</option>
+            <option value="2">2 ถุง (x2)</option>
         </select>
     </div>
-    <button onclick="window.print()" class="bg-black text-white px-8 py-3 font-black text-lg hover:invert transition-all">🖨️ PRINT</button>
+    <button onclick="window.print()" class="bg-black text-white px-8 py-2 font-black text-lg hover:bg-gray-800">PRINT</button>
   </div>
 
   <div id="ws-container"></div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwAXIgHNvWpROWj74igzeK5|VNNX7lFK/exec'; // ลูมิละไว้ให้คุณขิมเติมส่วนหลังนะคะ
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwAXIgHNvWpROWj74igzeK5nxaq2nSjFOeXrxgLILxJBhkr8HYz6asFsRPVJNNX7lFK/exec';
     let rawData = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const row = urlParams.get('row');
       if (row) {
-        const res = await fetch(`https://script.google.com/macros/s/AKfycbwAXIgHNvWpROWj74igzeK5nxaq2nSjFOeXrxgLILxJBhkr8HYz6asFsRPVJNNX7lFK/exec?action=getDataDetail&row_index=${row}`);
+        const res = await fetch(`${API_URL}?action=getDataDetail&row_index=${row}`);
         rawData = await res.json();
         renderAll();
       }
     });
 
-    // ฟังก์ชันปัดเศษแบบพิเศษ: 5.10 -> 5.1, 5.00 -> 5
     const formatNum = (v, div = 1) => {
       let num = (parseFloat(v) || 0) / div;
       let rounded = Math.round(num * 100) / 100;
@@ -75,10 +79,9 @@
     function createSheet(o, div) {
       const getVal = (v) => (parseFloat(v) || 0) / div;
       
-      // เลือกชื่อโปรตีน
       const getProtName = (n) => {
         const name = n?.toLowerCase() || "";
-        if (name.includes("aminoven")) return "10% Aminoven- Infant ✱";
+        if (name.includes("aminoven")) return "10% Aminoven-Infant ✱";
         if (name.includes("amiparen")) return "10% AmiPa-REN";
         if (name.includes("aminoplasmal")) return "15% AminoPlas-MAL";
         return n || "Amino Acid";
@@ -108,61 +111,52 @@
 
       return `
         <div class="sheet" contenteditable="true">
-          ${div === 2 ? '<div class="bag-badge">PREP x 2 BAGS</div>' : ''}
-          
-          <div class="flex justify-between items-start">
-             <div><h1 class="text-3xl font-black italic">TPN WORKSHEET</h1></div>
-             <div class="text-right">
-                <p class="text-[10px] font-bold">WARD</p>
-                <p class="text-6xl font-black leading-none">${o.ward || '-'}</p>
+          <div class="flex justify-between items-start mb-1">
+             <div class="flex-1">
+                ${div === 2 ? '<div class="bag-badge">PREP x 2 BAGS</div>' : ''}
+                <h1 class="text-xl font-black italic leading-none">TPN WORKSHEET</h1>
+                <p class="text-lg font-black mt-1">${o.patient_name}</p>
+                <p class="text-sm font-bold">HN: ${o.hn} | BW: ${o.bw} kg | ${new Date(o.order_date).toLocaleDateString('th-TH')}</p>
              </div>
-          </div>
-          
-          <div class="border-b-4 border-black pb-2 mb-2 mt-2">
-            <p class="text-2xl font-black">${o.patient_name} (HN: ${o.hn})</p>
-            <p class="text-lg font-bold">BW: ${o.bw} kg | Date: ${new Date(o.order_date).toLocaleDateString('th-TH')}</p>
+             <div class="text-right">
+                <p class="text-[9px] font-bold">WARD</p>
+                <p class="text-5xl font-black leading-none">${o.ward || '-'}</p>
+             </div>
           </div>
 
           <table>
             <thead>
               <tr>
-                <th style="width: 7%;">#</th>
+                <th style="width: 35px;">#</th>
                 <th style="text-align: left;">รายการสารอาหาร</th>
-                <th style="width: 23%;">Prep Vol (ml)</th>
-                <th style="width: 23%;">ถุงรวม (ml)</th>
+                <th style="width: 105px;">Prep (ml)</th>
+                <th style="width: 110px;">ถุงรวม (ml)</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td class="text-center">1</td><td>Sterile Water <small>(${formatNum(o.water_net, div)})</small></td><td class="val-prep">${formatNum(o.prep_water_vol || o.water_net, div)}</td><td class="val-cumul"></td></tr>
-              <tr><td class="text-center">2</td><td>50% D-W <small>(${formatNum(o.dex_vol, div)})</small></td><td class="val-prep">${formatNum(o.prep_dex_50_vol || o.dex_vol, div)}</td><td class="val-cumul">${calcCumul(vW_P + vD_P, true)}</td></tr>
-              <tr><td class="text-center">3</td><td>${getProtName(o.protein_product_name)}</td><td class="val-prep">${formatNum(vProt)}</td><td class="val-cumul">${calcCumul(vProt, true)}</td></tr>
-              <tr><td class="text-center">4</td><td>Glycophos (P)</td><td class="val-prep">${formatNum(vPhos)}</td><td class="val-cumul">${calcCumul(vPhos, false)}</td></tr>
-              <tr><td class="text-center">5</td><td>3% NaCl (Na)</td><td class="val-prep">${formatNum(vNa)}</td><td class="val-cumul">${calcCumul(vNa, true)}</td></tr>
-              <tr><td class="text-center">6</td><td>15% KCl (K)</td><td class="val-prep">${formatNum(vK)}</td><td class="val-cumul">${calcCumul(vK, false)}</td></tr>
-              <tr><td class="text-center">7</td><td>50% MgSO4 (Mg)</td><td class="val-prep">${formatNum(vMg)}</td><td class="val-cumul">${calcCumul(vMg, false)}</td></tr>
-              <tr><td class="text-center">8</td><td>10% Ca Gluconate</td><td class="val-prep">${formatNum(vCa)}</td><td class="val-cumul">${calcCumul(vCa, false)}</td></tr>
-              <tr><td class="text-center">9</td><td>Peditrace</td><td class="val-prep">${formatNum(vPed)}</td><td class="val-cumul">${calcCumul(vPed, false)}</td></tr>
-              <tr><td class="text-center">10</td><td>Zinc Sulfate</td><td class="val-prep">${formatNum(vZinc)}</td><td class="val-cumul">${calcCumul(vZinc, false)}</td></tr>
-              <tr><td class="text-center">11</td><td>Soluvit-N</td><td class="val-prep">${formatNum(vSolu)}</td><td class="val-cumul">${calcCumul(vSolu, false)}</td></tr>
-              <tr><td class="text-center">12</td><td>${o.additive_other_name || 'Additive อื่นๆ'}</td><td class="val-prep">${formatNum(vOther)}</td><td class="val-cumul">${calcCumul(vOther, false)}</td></tr>
-              <tr><td class="text-center">13</td><td>Heparin (1u/ml) conc. 500 u/ml</td><td class="val-prep">${formatNum(vHep)}</td><td class="val-cumul">${calcCumul(vHep, false)}</td></tr>
+              <tr><td class="text-center">1</td><td class="text-sm">Sterile Water <small>(${formatNum(o.water_net, div)})</small></td><td class="val-prep">${formatNum(vW_P)}</td><td class="val-cumul"></td></tr>
+              <tr><td class="text-center">2</td><td class="text-sm">50% D-W <small>(${formatNum(o.dex_vol, div)})</small></td><td class="val-prep">${formatNum(vD_P)}</td><td class="val-cumul">${calcCumul(vW_P + vD_P, true)}</td></tr>
+              <tr><td class="text-center">3</td><td class="text-sm">${getProtName(o.protein_product_name)}</td><td class="val-prep">${formatNum(vProt)}</td><td class="val-cumul">${calcCumul(vProt, true)}</td></tr>
+              <tr><td class="text-center">4</td><td class="text-sm">Glycophos (P)</td><td class="val-prep">${formatNum(vPhos)}</td><td class="val-cumul">${calcCumul(vPhos, false)}</td></tr>
+              <tr><td class="text-center">5</td><td class="text-sm">3% NaCl (Na)</td><td class="val-prep">${formatNum(vNa)}</td><td class="val-cumul">${calcCumul(vNa, true)}</td></tr>
+              <tr><td class="text-center">6</td><td class="text-sm">15% KCl (K)</td><td class="val-prep">${formatNum(vK)}</td><td class="val-cumul">${calcCumul(vK, false)}</td></tr>
+              <tr><td class="text-center">7</td><td class="text-sm">50% MgSO4 (Mg)</td><td class="val-prep">${formatNum(vMg)}</td><td class="val-cumul">${calcCumul(vMg, false)}</td></tr>
+              <tr><td class="text-center">8</td><td class="text-sm">10% Ca Gluconate</td><td class="val-prep">${formatNum(vCa)}</td><td class="val-cumul">${calcCumul(vCa, false)}</td></tr>
+              <tr><td class="text-center">9</td><td class="text-sm">Peditrace</td><td class="val-prep">${formatNum(vPed)}</td><td class="val-cumul">${calcCumul(vPed, false)}</td></tr>
+              <tr><td class="text-center">10</td><td class="text-sm">Zinc Sulfate</td><td class="val-prep">${formatNum(vZinc)}</td><td class="val-cumul">${calcCumul(vZinc, false)}</td></tr>
+              <tr><td class="text-center">11</td><td class="text-sm">Soluvit-N</td><td class="val-prep">${formatNum(vSolu)}</td><td class="val-cumul">${calcCumul(vSolu, false)}</td></tr>
+              <tr><td class="text-center">12</td><td class="text-sm">${o.additive_other_name || 'Additive อื่นๆ'}</td><td class="val-prep">${formatNum(vOther)}</td><td class="val-cumul">${calcCumul(vOther, false)}</td></tr>
+              <tr><td class="text-center">13</td><td class="text-sm">Heparin (1u/ml) conc. 500 u/ml</td><td class="val-prep">${formatNum(vHep)}</td><td class="val-cumul">${calcCumul(vHep, false)}</td></tr>
+              <tr style="background-color: #eee; font-weight: 900;">
+                <td colspan="2" class="text-right text-lg">Total PN vol + ไล่สาย ${formatNum(flushVal)} ml</td>
+                <td colspan="2" class="text-center text-3xl">${formatNum(o.pn_prep_total || o.pn_volume, div)}</td>
+              </tr>
             </tbody>
           </table>
 
-          <div class="mt-4 flex justify-between items-start border-2 border-black p-3 font-bold">
-            <div class="text-lg">
-                <p>Total PN vol (order): <span class="font-black">${formatNum(o.pn_volume, div)} ml</span></p>
-                <p>Total PN vol + ไล่สาย ${flushVal} ml: <span class="font-black">${formatNum(o.pn_prep_total || o.pn_volume, div)} ml</span></p>
-            </div>
-            <div class="text-right text-sm">
-                <p>Fat: ${o.fat_product_name || '-'} | Vol: ${formatNum(o.total_fat_vit_flush, div)} ml</p>
-                <p>Osmolarity: ${o.final_osmolarity} mOsmol/L</p>
-            </div>
-          </div>
-
           <div class="footer-sign">
-            <div class="text-center"><div class="w-32 border-b-2 border-black"></div><p class="font-bold mt-2">คนเตรียม</p></div>
-            <div class="text-center"><div class="w-32 border-b-2 border-black"></div><p class="font-bold mt-2">คนตรวจ</p></div>
+            <div class="text-center"><div class="w-32 border-b-2 border-black"></div><p class="font-black text-xs mt-2">คนเตรียม</p></div>
+            <div class="text-center"><div class="w-32 border-b-2 border-black"></div><p class="font-black text-xs mt-2">คนตรวจ</p></div>
           </div>
         </div>`;
     }
