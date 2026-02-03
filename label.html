@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | Final Polish Version</title>
+  <title>TPN Master Print | Final Fix Version</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
@@ -18,7 +18,6 @@
     .sticker-pn { width: 8.5cm; height: 12cm; padding: 1.25cm 0.4cm 0.2cm 0.4cm; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
     .sticker-small { width: 3.5in; height: 2.48in; padding: 1.1cm 0.25in 0.1in 0.25in; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
     
-    /* เส้นตารางสีดำแบบบาง */
     table { width: 103%; margin-left: -1.5%; font-size: 11px; border-collapse: collapse; border: 0.8px solid #000; }
     td, th { border: 0.8px solid #000; padding: 1.8px 4px; vertical-align: middle; }
     th { font-size: 10px; font-weight: 800; background: #f2f2f2; text-align: center; }
@@ -31,12 +30,10 @@
     
     .header-info { font-size: 12.5px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 2px; }
     
-    /* สรุปข้อมูลด้านล่าง: ฟอนต์เล็กลง 5% และชิดซ้าย */
-    .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 103%; margin-left: -1.5%; margin-top: 6px; border-top: 1px solid #000; pt-1; }
+    .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 103%; margin-left: -1.5%; margin-top: 6px; border-top: 1px solid #000; padding-top: 4px; }
     .summary-stack { font-size: 9.5px; font-weight: 400; line-height: 1.4; text-align: left; padding-left: 2px; }
     .summary-val { font-weight: 800; }
 
-    /* ย้าย Rate และ หมดอายุขึ้นมาด้านขวา */
     .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
     .rate-box-final { border: 1.5px solid #000; padding: 2px 6px; font-size: 13px; font-weight: 800; display: inline-block; }
     .exp-text { font-size: 8.5px; text-align: right; font-weight: 800; line-height: 1.2; }
@@ -45,6 +42,7 @@
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20">
+
   <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div id="card-pn" onclick="selectSection('pn')" class="bg-white p-5 rounded-3xl border-4 border-gray-100 cursor-pointer transition-all hover:border-blue-400">
@@ -67,7 +65,6 @@
   <div id="bag-area" class="print-area"></div>
 
   <script>
-    // --- Logic คำนวณ (เหมือนเดิมตามข้อตกลง) ---
     const API_URL = 'https://script.google.com/macros/s/AKfycbwAXIgHNvWpROWj74igzeK5nxaq2nSjFOeXrxgLILxJBhkr8HYz6asFsRPVJNNX7lFK/exec';
     let rawData = null;
 
@@ -117,9 +114,6 @@
       const totalCalories = parseFloat(o.total_calories) || 0;
       const fatCalories = (parseFloat(o.total_fat_vit_flush) * 2);
       const pnCaloriesOnly = totalCalories - fatCalories;
-      const npcT = totalCalories - (parseFloat(o.protein_target) * parseFloat(o.bw) * 4);
-      const nT = (parseFloat(o.protein_target) * parseFloat(o.bw)) / 6.25;
-      const npcn = nT > 0 ? Math.round(npcT / nT) + ":1" : "-";
 
       return `<div class="sticker sticker-pn">
         <div class="header-info flex justify-between"><span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span></div>
@@ -139,7 +133,7 @@
           <tr class="row-gray"><td class="item-name">11. Soluvit-N</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.soluvit_vol, div)}"></td></tr>
           <tr class="row-gray"><td class="item-name">12. อื่นๆ</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.additive_other_volume, div)}"></td></tr>
           <tr class="row-gray"><td class="item-name">13. Heparin (1u/ml)</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.heparin_vol, div)}"></td></tr>
-          <tr class="big-vol-row"><td style="text-align:left;">Total PN vol:</td><td class="item-vol">${smartFix(vPerB)}</td></tr>
+          <tr class="big-vol-row"><td style="text-align:left;">Total PN vol:</td><td class="item-vol">${smartFix(o.pn_volume, div)}</td></tr>
           <tr class="big-vol-row"><td style="text-align:left;">Total + ไล่สาย 30ml:</td><td class="item-vol">${smartFix(vPerB + 30)}</td></tr>
         </table>
         
@@ -159,7 +153,6 @@
       </div>`;
     }
 
-    // --- FAT & BAG (เหมือนเดิมแต่ปรับ CSS ตามส่วน PN) ---
     function createFat(o, fNum, div) {
       const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
       const tSyr = (parseFloat(o.total_fat_vit_flush) || 0) / div;
