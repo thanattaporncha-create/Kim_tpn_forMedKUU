@@ -108,7 +108,7 @@
       document.getElementById('bag-area').innerHTML = createBag(rawData);
     }
 
-    function createPN(o, bNum, div) {
+  function createPN(o, bNum, div) {
   const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
   const vPerB = (parseFloat(o.pn_volume) || 0) / div;
   const totalCalories = parseFloat(o.total_calories) || 0;
@@ -132,23 +132,32 @@
       <span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span>
     </div>
     <table class="pn-table">
-      <thead><tr><th style="width: 75%;">รายการ</th><th style="width: 25%;">ปริมาตร (ml)</th></tr></thead>
+      <thead><tr><th style="width: 70%;">รายการ</th><th style="width: 30%;">ปริมาตร (ml)</th></tr></thead>
       <tbody contenteditable="true" style="font-weight: 400 !important;">
-      <tr style="font-weight: 400;"><td class="item-name">1. Sterile Water</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.water_net, div)}</td></tr>
-      <tr style="font-weight: 400;"><td class="item-name">2. 50% D-W</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.dex_vol, div)}</td></tr>
-      <tr style="font-weight: 400;"><td class="item-name">3. ${getProtName(o.protein_product_name)}</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.protein_vol, div)}</td></tr>
-      <tr style="font-weight: 400;"><td class="item-name">4. Glycophos (P)</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.phos_vol, div)}</td></tr>
-      <tr style="font-weight: 400;"><td class="item-name">5. 3% NaCl (Na)</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.na_vol, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">6. 15% KCl (K)</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.k_vol, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">7. 50% MgSO4 (Mg)</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.mg_vol, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">8. 10% Ca Gluconate</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.ca_vol, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">9. Peditrace</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.peditrace_vol, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">10. Zinc sulfate</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.zinc_vol, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">11. Soluvit-N</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.soluvit_vol, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">12. อื่นๆ</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.additive_other_volume, div)}</td></tr>
-      <tr class="row-gray" style="font-weight: 400;"><td class="item-name">13. Heparin (1u/ml)</td><td class="item-vol" style="font-weight: 800; text-align: right;">${smartFix(o.heparin_vol, div)}</td></tr>
-      <tr class="big-vol-row"><td style="text-align:left;">Total PN vol:</td><td class="item-vol" style="text-align: right;">${smartFix(o.pn_volume, div)}</td></tr>
-      <tr class="big-vol-row"><td style="text-align:left;">Total + ไล่สาย ${flushValue}ml:</td><td class="item-vol" style="text-align: right;">${smartFix(vPerB + flushValue)}</td></tr>
+        <tr><td>1. Sterile Water</td><td style="font-weight: 800; text-align: right;">${smartFix(o.water_net, div)}</td></tr>
+        <tr><td>2. 50% D-W</td><td style="font-weight: 800; text-align: right;">${smartFix(o.dex_vol, div)}</td></tr>
+        <tr><td>3. ${getProtName(o.protein_product_name)}</td><td style="font-weight: 800; text-align: right;">${smartFix(o.protein_vol, div)}</td></tr>
+        <tr><td>4. Glycophos (P)</td><td style="font-weight: 800; text-align: right;">${smartFix(o.phos_vol, div)}</td></tr>
+        <tr><td>5. 3% NaCl (Na)</td><td style="font-weight: 800; text-align: right;">${smartFix(o.na_vol, div)}</td></tr>
+        <tr><td>6. 15% KCl (K)</td><td style="font-weight: 800; text-align: right;">${smartFix(o.k_vol, div)}</td></tr>
+        <tr><td>7. 50% MgSO4 (Mg)</td><td style="font-weight: 800; text-align: right;">${smartFix(o.mg_vol, div)}</td></tr>
+        <tr><td>8. 10% Ca Gluconate</td><td style="font-weight: 800; text-align: right;">${smartFix(o.ca_vol, div)}</td></tr>
+        <tr><td>9. Peditrace</td><td style="font-weight: 800; text-align: right;">${smartFix(o.peditrace_vol, div)}</td></tr>
+        <tr><td>10. Zinc sulfate</td><td style="font-weight: 800; text-align: right;">${smartFix(o.zinc_vol, div)}</td></tr>
+        <tr><td>11. Soluvit-N</td><td style="font-weight: 800; text-align: right;">${smartFix(o.soluvit_vol, div)}</td></tr>
+        <tr><td>12. อื่นๆ</td><td style="font-weight: 800; text-align: right;">${smartFix(o.additive_other_volume, div)}</td></tr>
+        <tr><td>13. Heparin (1u/ml)</td><td style="font-weight: 800; text-align: right;">${smartFix(o.heparin_vol, div)}</td></tr>
+        
+        <tr style="font-weight: 800; background: #f9f9f9;">
+          <td colspan="2" style="text-align: right; padding-right: 10px;">
+            Total PN vol: ${smartFix(o.pn_volume, div)} ml
+          </td>
+        </tr>
+        <tr style="font-weight: 800; background: #f2f2f2;">
+          <td colspan="2" style="text-align: right; padding-right: 10px;">
+            Total + ไล่สาย ${flushValue}ml: ${smartFix(vPerB + flushValue)} ml
+          </td>
+        </tr>
       </tbody>
     </table>
     
