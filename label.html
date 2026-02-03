@@ -22,7 +22,7 @@
     
     /* แก้ไขจุดที่ 2: ปรับ CSS ส่วนกลางของตาราง */
     .pn-table { width: 103%; margin-left: -1.5%; font-size: 11.5px; border-collapse: collapse; border: 1px solid #000; flex-grow: 1; }
-    .pn-table td { border: 1px solid #000; padding: 3.2px 5px; vertical-align: middle; font-weight: 400; } /* ตัวบาง 400 */
+    .pn-table td { border: 1px solid #000; padding: 3.2px 5px; vertical-align: middle; : 400; } /* ตัวบาง 400 */
     .pn-table th { border: 1px solid #000; padding: 3.2px 5px; vertical-align: middle; font-size: 11px; font-weight: 800; background: #f2f2f2; }
     
     /* คลาสสั่งชิดขวาสำหรับตัวเลข */
@@ -111,65 +111,82 @@
       document.getElementById('bag-area').innerHTML = createBag(rawData);
     }
 
-    function createPN(o, bNum, div) {
-      const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
-      const vPerB = (parseFloat(o.pn_volume) || 0) / div;
-      const totalCalories = parseFloat(o.total_calories) || 0;
-      const fatCalories = (parseFloat(o.total_fat_vit_flush) * 2);
-      const pnCaloriesOnly = totalCalories - fatCalories;
-      const flushValue = 30 / div;
+   function createPN(o, bNum, div) {
+  const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
+  const vPerB = (parseFloat(o.pn_volume) || 0) / div;
+  const totalCalories = parseFloat(o.total_calories) || 0;
+  const flushValue = 30 / div;
 
-      const getProtName = (n) => {
-        const name = n?.toLowerCase();
-        if (name === "aminoven") return "10% Aminoven-Infant";
-        if (name === "amiparen") return "10% Amiparen";
-        if (name === "aminoplasmal") return "15% Aminoplasmal";
-        return n || "Protein";
-      };
+  // --- Logic คำนวณ PN Calories ใหม่ให้ถูกต้อง ---
+  const dexVol = parseFloat(o.dex_vol) || 0;
+  const protVol = parseFloat(o.protein_vol) || 0;
+  const protName = o.protein_product_name?.toLowerCase() || "";
 
-      return `<div class="sticker sticker-pn">
-        <div class="header-info flex justify-between" contenteditable="true">
-          <span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span>
-        </div>
-        <div class="ward-route-info flex justify-between" contenteditable="true">
-          <span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span>
-        </div>
-        <table class="pn-table">
-          <thead><tr><th style="width: 75%;">รายการ</th><th style="width: 25%;">ปริมาตร (ml)</th></tr></thead>
-          <tbody contenteditable="true">
-          <tr><td>1. Sterile Water</td><td class="text-right">${smartFix(o.water_net, div)}</td></tr>
-          <tr><td>2. 50% D-W</td><td class="text-right">${smartFix(o.dex_vol, div)}</td></tr>
-          <tr><td>3. ${getProtName(o.protein_product_name)}</td><td class="text-right">${smartFix(o.protein_vol, div)}</td></tr>
-          <tr><td>4. Glycophos (P)</td><td class="text-right">${smartFix(o.phos_vol, div)}</td></tr>
-          <tr><td>5. 3% NaCl (Na)</td><td class="text-right">${smartFix(o.na_vol, div)}</td></tr>
-          <tr><td>6. 15% KCl (K)</td><td class="text-right">${smartFix(o.k_vol, div)}</td></tr>
-          <tr><td>7. 50% MgSO4 (Mg)</td><td class="text-right">${smartFix(o.mg_vol, div)}</td></tr>
-          <tr><td>8. 10% Ca Gluconate</td><td class="text-right">${smartFix(o.ca_vol, div)}</td></tr>
-          <tr><td>9. Peditrace</td><td class="text-right">${smartFix(o.peditrace_vol, div)}</td></tr>
-          <tr><td>10. Zinc sulfate</td><td class="text-right">${smartFix(o.zinc_vol, div)}</td></tr>
-          <tr><td>11. Soluvit-N</td><td class="text-right">${smartFix(o.soluvit_vol, div)}</td></tr>
-          <tr><td>12. อื่นๆ</td><td class="text-right">${smartFix(o.additive_other_volume, div)}</td></tr>
-          <tr><td>13. Heparin (1u/ml)</td><td class="text-right">${smartFix(o.heparin_vol, div)}</td></tr>
-          
-          <tr class="big-vol-row"><td colspan="2">Total PN vol: ${smartFix(o.pn_volume, div)} ml</td></tr>
-          <tr class="big-vol-row"><td colspan="2">Total + ไล่สาย ${flushValue}ml: ${smartFix(vPerB + flushValue)} ml</td></tr>
-          </tbody>
-        </table>
-        
-        <div class="footer-container">
-          <div class="summary-stack" contenteditable="true">
-            <div>Total cal (รวม fat): <span class="summary-val">${totalCalories} kcal/day</span></div>
-            <div>PN cal: <span class="summary-val">${pnCaloriesOnly.toFixed(1)} kcal/day</span></div>
-            <div>% Glucose: <span class="summary-val">${o.dextrose_percent}%</span> &nbsp;&nbsp; GIR: <span class="summary-val">${o.gir_result}</span></div>
-            <div>Osmolarity: <span class="summary-val">${o.final_osmolarity} mOsmol/L</span></div>
-          </div>
-          <div class="info-box-right" contenteditable="true">
-            <div class="rate-box-final">Rate: ${o.rate_tpn} ml/hr</div>
-            <div class="exp-text">หมดอายุ: ${formatThaiDate(exp)}<br>เวลา 18.00 น.</div>
-          </div>
-        </div>
-      </div>`;
-    }
+  // 1. Dextrose Calories (50% DW 1 ml = 1.7 kcal)
+  const dexCal = dexVol * 1.7;
+
+  // 2. Protein Calories (4 kcal per gram of protein)
+  // Aminoplasmal 15% (1 ml มี 0.15g), อื่นๆ 10% (1 ml มี 0.1g)
+  let protGrams = protVol * 0.1; 
+  if (protName.includes("aminoplasmal")) {
+    protGrams = protVol * 0.15;
+  }
+  const protCal = protGrams * 4;
+
+  // ผลรวม PN Calories (พลังงานที่ไม่รวม Fat)
+  const pnCaloriesOnly = dexCal + protCal;
+  // -------------------------------------------
+
+  const getProtName = (n) => {
+    const name = n?.toLowerCase();
+    if (name === "aminoven") return "10% Aminoven-Infant";
+    if (name === "amiparen") return "10% Amiparen";
+    if (name === "aminoplasmal") return "15% Aminoplasmal";
+    return n || "Protein";
+  };
+
+  return `<div class="sticker sticker-pn">
+    <div class="header-info flex justify-between" contenteditable="true">
+      <span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span>
+    </div>
+    <div class="ward-route-info flex justify-between" contenteditable="true">
+      <span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span>
+    </div>
+    <table class="pn-table">
+      <thead><tr><th style="width: 75%;">รายการ</th><th style="width: 25%;">ปริมาตร (ml)</th></tr></thead>
+      <tbody contenteditable="true">
+      <tr><td>1. Sterile Water</td><td class="text-right">${smartFix(o.water_net, div)}</td></tr>
+      <tr><td>2. 50% D-W</td><td class="text-right">${smartFix(o.dex_vol, div)}</td></tr>
+      <tr><td>3. ${getProtName(o.protein_product_name)}</td><td class="text-right">${smartFix(o.protein_vol, div)}</td></tr>
+      <tr><td>4. Glycophos (P)</td><td class="text-right">${smartFix(o.phos_vol, div)}</td></tr>
+      <tr><td>5. 3% NaCl (Na)</td><td class="text-right">${smartFix(o.na_vol, div)}</td></tr>
+      <tr><td>6. 15% KCl (K)</td><td class="text-right">${smartFix(o.k_vol, div)}</td></tr>
+      <tr><td>7. 50% MgSO4 (Mg)</td><td class="text-right">${smartFix(o.mg_vol, div)}</td></tr>
+      <tr><td>8. 10% Ca Gluconate</td><td class="text-right">${smartFix(o.ca_vol, div)}</td></tr>
+      <tr><td>9. Peditrace</td><td class="text-right">${smartFix(o.peditrace_vol, div)}</td></tr>
+      <tr><td>10. Zinc sulfate</td><td class="text-right">${smartFix(o.zinc_vol, div)}</td></tr>
+      <tr><td>11. Soluvit-N</td><td class="text-right">${smartFix(o.soluvit_vol, div)}</td></tr>
+      <tr><td>12. อื่นๆ</td><td class="text-right">${smartFix(o.additive_other_volume, div)}</td></tr>
+      <tr><td>13. Heparin (1u/ml)</td><td class="text-right">${smartFix(o.heparin_vol, div)}</td></tr>
+      <tr class="big-vol-row"><td colspan="2">Total PN vol: ${smartFix(o.pn_volume, div)} ml</td></tr>
+      <tr class="big-vol-row"><td colspan="2">Total + ไล่สาย ${flushValue}ml: ${smartFix(vPerB + flushValue)} ml</td></tr>
+      </tbody>
+    </table>
+    
+    <div class="footer-container">
+      <div class="summary-stack" contenteditable="true">
+        <div>Total cal (รวม fat): <span class="summary-val">${totalCalories.toFixed(1)} kcal/day</span></div>
+        <div>PN cal: <span class="summary-val">${pnCaloriesOnly.toFixed(1)} kcal/day</span></div>
+        <div>% Glucose: <span class="summary-val">${o.dextrose_percent}%</span> &nbsp;&nbsp; GIR: <span class="summary-val">${o.gir_result}</span></div>
+        <div>Osmolarity: <span class="summary-val">${o.final_osmolarity} mOsmol/L</span></div>
+      </div>
+      <div class="info-box-right" contenteditable="true">
+        <div class="rate-box-final">Rate: ${o.rate_tpn} ml/hr</div>
+        <div class="exp-text">หมดอายุ: ${formatThaiDate(exp)}<br>เวลา 18.00 น.</div>
+      </div>
+    </div>
+  </div>`;
+}
 
     function createFat(o, fNum, div) {
       const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
