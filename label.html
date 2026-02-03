@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | Editable Master</title>
+  <title>TPN Master Print | PN Extended Master</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
@@ -18,7 +18,10 @@
     [contenteditable="true"]:hover { background: #fff9c4; outline: 1px dashed #ccc; cursor: text; }
     [contenteditable="true"]:focus { background: #fff9c4; outline: 2px solid #2563eb; }
 
-    .sticker-pn { width: 8.5cm; height: 12cm; padding: 1.25cm 0.4cm 0.2cm 0.4cm; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
+    /* ปรับความสูง PN เพิ่ม 7.5% (12cm -> 12.9cm) */
+    .sticker-pn { width: 8.5cm; height: 12.9cm; padding: 1.25cm 0.4cm 0.2cm 0.4cm; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
+    
+    /* ฉลากเล็ก (Fat/Bag) ล็อกไว้เท่าเดิมห้ามยุ่ง */
     .sticker-small { width: 3.5in; height: 2.48in; padding: 1.1cm 0.25in 0.1in 0.25in; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
     
     table { width: 103%; margin-left: -1.5%; font-size: 11px; border-collapse: collapse; border: 0.8px solid #000; }
@@ -45,7 +48,7 @@
 
   <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="bg-blue-100 p-4 rounded-xl mb-6 text-blue-800 text-sm">
-      💡 <b>Tip:</b> คุณขิมสามารถคลิกที่ตัวอักษรหรือตัวเลขใดๆ บนฉลากเพื่อแก้ไขก่อนพิมพ์ได้เลยนะคะ
+      💡 <b>Tip:</b> สามารถคลิกเพื่อแก้ไขข้อความ และ ตัวเลข บนฉลากได้ทุกใบค่ะ
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div id="card-pn" onclick="selectSection('pn')" class="bg-white p-5 rounded-3xl border-4 border-gray-100 cursor-pointer transition-all hover:border-blue-400">
