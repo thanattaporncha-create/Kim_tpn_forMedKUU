@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | Final Fix Version</title>
+  <title>TPN Master Print | Fixed Protein & Footer</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
@@ -30,13 +30,17 @@
     
     .header-info { font-size: 12.5px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 2px; }
     
-    .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 103%; margin-left: -1.5%; margin-top: 6px; border-top: 1px solid #000; padding-top: 4px; }
-    .summary-stack { font-size: 9.5px; font-weight: 400; line-height: 1.4; text-align: left; padding-left: 2px; }
+    .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 103%; margin-left: -1.5%; margin-top: 5px; border-top: 1px solid #000; padding-top: 4px; }
+    
+    /* ปรับแก๊งแคลอรี่ให้เล็กลงตามสั่ง */
+    .summary-stack { font-size: 8.8px; font-weight: 400; line-height: 1.35; text-align: left; padding-left: 2px; }
     .summary-val { font-weight: 800; }
 
-    .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .rate-box-final { border: 1.5px solid #000; padding: 2px 6px; font-size: 13px; font-weight: 800; display: inline-block; }
-    .exp-text { font-size: 8.5px; text-align: right; font-weight: 800; line-height: 1.2; }
+    .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    /* บีบ Rate ลงอีกนิดไม่ให้ตกบรรทัด */
+    .rate-box-final { border: 1.5px solid #000; padding: 1.5px 5px; font-size: 12px; font-weight: 800; display: inline-block; white-space: nowrap; }
+    /* วันหมดอายุใหญ่ขึ้น 10% */
+    .exp-text { font-size: 9.5px; text-align: right; font-weight: 800; line-height: 1.2; }
     
     .big-vol-row { font-size: 11.5px; font-weight: 800; background: #fff; }
   </style>
@@ -46,7 +50,7 @@
   <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div id="card-pn" onclick="selectSection('pn')" class="bg-white p-5 rounded-3xl border-4 border-gray-100 cursor-pointer transition-all hover:border-blue-400">
-        <h3 class="font-black text-lg">PN BIG LABEL</h3>
+        <h3 class="font-black text-lg uppercase tracking-tight">PN BIG LABEL</h3>
         <div onclick="event.stopPropagation()"><select id="pnCount" onchange="renderAll()" class="mt-2 p-1 border rounded w-24"><option value="1">1 ขวด</option><option value="2">2 ขวด</option></select></div>
       </div>
       <div id="card-fat" onclick="selectSection('fat')" class="bg-white p-5 rounded-3xl shadow-sm border-4 border-gray-100 cursor-pointer transition-all hover:border-amber-400">
@@ -115,6 +119,14 @@
       const fatCalories = (parseFloat(o.total_fat_vit_flush) * 2);
       const pnCaloriesOnly = totalCalories - fatCalories;
 
+      const getProtName = (n) => {
+        const name = n?.toLowerCase();
+        if (name === "aminoven") return "10% Aminoven-Infant";
+        if (name === "amiparen") return "10% Amiparen";
+        if (name === "aminoplasmal") return "15% Aminoplasmal";
+        return n || "Protein";
+      };
+
       return `<div class="sticker sticker-pn">
         <div class="header-info flex justify-between"><span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span></div>
         <div class="flex justify-between text-[11px] font-bold border-b border-black mb-1"><span>Ward: ${o.ward}</span><span>Route: ${o.route === 'central' ? 'C-line' : 'P-line'}</span></div>
@@ -122,7 +134,7 @@
           <thead><tr><th style="width: 75%;">รายการ</th><th style="width: 25%;">ปริมาตร</th></tr></thead>
           <tr><td class="item-name">1. Sterile Water</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.water_net, div)}"></td></tr>
           <tr><td class="item-name">2. 50% D-W</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.dex_vol, div)}"></td></tr>
-          <tr><td class="item-name">3. ${o.protein_product_name || 'Protein'}</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.protein_vol, div)}"></td></tr>
+          <tr><td class="item-name">3. ${getProtName(o.protein_product_name)}</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.protein_vol, div)}"></td></tr>
           <tr><td class="item-name">4. Glycophos (P)</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.phos_vol, div)}"></td></tr>
           <tr><td class="item-name">5. 3% NaCl (Na)</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.na_vol, div)}"></td></tr>
           <tr class="row-gray"><td class="item-name">6. 15% KCl (K)</td><td class="item-vol"><input class="edit-vol" value="${smartFix(o.k_vol, div)}"></td></tr>
@@ -175,7 +187,7 @@
           </div>
           <div class="info-box-right">
             <div class="rate-box-final" style="font-size: 11px;">Rate: ${o.fat_rate} ml/hr</div>
-            <div class="exp-text" style="font-size: 8px;">หมดอายุ: ${formatThaiDate(exp)} 18.00 น.</div>
+            <div class="exp-text" style="font-size: 8.5px;">หมดอายุ: ${formatThaiDate(exp)} 18.00 น.</div>
           </div>
         </div>
       </div>`;
