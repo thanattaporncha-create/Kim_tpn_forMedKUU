@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | PDF Version</title>
+  <title>TPN Master Print | Fixed Version</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
@@ -86,7 +86,7 @@
 
   <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="bg-emerald-100 p-4 rounded-xl mb-6 text-emerald-800 text-sm">
-      ✅ <b>Update:</b> เพิ่มปุ่ม Generate PDF | FAT เข้มชัด | ลำดับขวด 1/2 ถูกต้อง
+      ✅ <b>Fixed:</b> แก้ไข Vitalipid Infant/Adult และดึงชื่อยา Other Additive อัตโนมัติ
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -143,6 +143,7 @@
     };
 
     function formatThaiDate(dateObj) {
+      if (!dateObj) return "-";
       const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
       const d = new Date(dateObj);
       return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
@@ -161,12 +162,10 @@
       document.getElementById('bag-area').innerHTML = createBag(rawData);
     }
 
-    // ฟังก์ชันสร้างไฟล์ PDF
     function generatePDF() {
       if (!rawData) return;
       const element = document.getElementById(`${selectedType}-area`);
       const filename = `${selectedType}_${rawData.hn}_${rawData.patient_name}.pdf`;
-      
       const opt = {
         margin: [0, 0],
         filename: filename,
@@ -174,7 +173,6 @@
         html2canvas: { scale: 3, useCORS: true, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
-
       html2pdf().set(opt).from(element).save();
     }
 
@@ -200,6 +198,9 @@
         return n || "Protein";
       };
 
+      // ส่วน Other Additive Name
+      const otherName = o.additive_other_name && o.additive_other_name !== "" ? o.additive_other_name : "อื่นๆ";
+
       return `<div class="sticker sticker-pn">
         <div class="header-info flex justify-between" contenteditable="true">
           <span>HN: ${o.hn} - ${o.patient_name}</span><span>ขวด: ${bNum}/${div}</span>
@@ -221,7 +222,7 @@
           <tr><td>9. Peditrace</td><td class="text-right">${smartFix(o.peditrace_vol, div)}</td></tr>
           <tr><td>10. Zinc sulfate</td><td class="text-right">${smartFix(o.zinc_vol, div)}</td></tr>
           <tr><td>11. Soluvit-N</td><td class="text-right">${smartFix(o.soluvit_vol, div)}</td></tr>
-          <tr><td>12. อื่นๆ</td><td class="text-right">${smartFix(o.additive_other_volume, div)}</td></tr>
+          <tr><td>12. ${otherName}</td><td class="text-right">${smartFix(o.additive_other_volume, div)}</td></tr>
           <tr><td>13. Heparin (1u/ml)</td><td class="text-right">${smartFix(o.heparin_vol, div)}</td></tr>
           <tr class="big-vol-row" style="font-weight:800; background:#fafafa;"><td colspan="2" class="text-right">Total PN vol: ${smartFix(o.pn_volume, div)} ml</td></tr>
           <tr class="big-vol-row" style="font-weight:800; background:#fafafa;"><td colspan="2" class="text-right">Total + ไล่สาย ${flushValue}ml: ${smartFix(vPerB + flushValue)} ml</td></tr>
@@ -267,7 +268,10 @@
         if (name === "intralipid") return "20% Intralipid";
         return n || "Fat Emulsion";
       };
-      const vitDisplay = o.vitalipid_type?.toLowerCase() === "infant" ? "✿ Vitalipid N-Infant ✿" : "Vitalipid N-Adult";
+
+      // แก้ไขเรื่อง Vitalipid Infant/Adult (เช็คจากตัวแปร vit_product ตาม Google Script)
+      const vitType = o.vit_product ? o.vit_product.toString().toLowerCase() : "";
+      const vitDisplay = vitType.includes("infant") ? "✿ Vitalipid N-Infant ✿" : "Vitalipid N-Adult";
 
       return `<div class="sticker sticker-small">
         <div style="font-size: 14px; font-weight: 800; text-align: left;" contenteditable="true">HN: ${o.hn} - ${o.patient_name}</div>
@@ -323,4 +327,3 @@
   </script>
 </body>
 </html>
-
