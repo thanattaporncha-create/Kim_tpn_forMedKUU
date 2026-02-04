@@ -2,10 +2,12 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | Full Area Master</title>
+  <title>TPN Master Print | PDF Version</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
+    /* CSS พื้นฐาน */
     * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.1; font-weight: 700; }
     
     @media print {
@@ -24,6 +26,7 @@
     [contenteditable="true"]:hover { background: #fff9c4; outline: 1px dashed #ccc; cursor: text; }
     [contenteditable="true"]:focus { background: #fff9c4; outline: 2px solid #2563eb; }
 
+    /* ฉลาก PN */
     .sticker-pn { 
       width: 8.5cm; 
       height: 12.9cm; 
@@ -37,6 +40,7 @@
       flex-direction: column; 
     }
 
+    /* ฉลากเล็ก (Fat/หน้าถุง) */
     .sticker-small { 
       width: 3.5in; 
       height: 2.48in; 
@@ -82,8 +86,9 @@
 
   <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="bg-emerald-100 p-4 rounded-xl mb-6 text-emerald-800 text-sm">
-      ✅ <b>Update:</b> FAT Label เข้มชัดขึ้น | หน้าถุงเล็กลง 5% | สลับลำดับขวด 1/2 เรียบร้อยค่ะ
+      ✅ <b>Update:</b> เพิ่มปุ่ม Generate PDF | FAT เข้มชัด | ลำดับขวด 1/2 ถูกต้อง
     </div>
+    
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div id="card-pn" onclick="selectSection('pn')" class="bg-white p-5 rounded-3xl border-4 border-gray-100 cursor-pointer transition-all hover:border-blue-400">
         <h3 class="font-black text-lg">PN BIG LABEL</h3>
@@ -97,7 +102,11 @@
         <h3 class="font-black text-lg uppercase text-emerald-900">หน้าถุง</h3>
       </div>
     </div>
-    <button id="printBtn" onclick="window.print()" class="hidden w-full bg-slate-900 text-white py-5 rounded-3xl font-black text-xl shadow-xl">🖨️ สั่งพิมพ์ใบที่เลือก</button>
+
+    <div id="action-btns" class="hidden flex flex-col md:flex-row gap-4 justify-center">
+      <button onclick="window.print()" class="bg-slate-900 text-white py-5 px-10 rounded-3xl font-black text-xl shadow-xl hover:bg-black transition-colors">🖨️ พิมพ์โดยตรง (Browser)</button>
+      <button onclick="generatePDF()" class="bg-blue-600 text-white py-5 px-10 rounded-3xl font-black text-xl shadow-xl hover:bg-blue-700 transition-colors">💾 บันทึกเป็น PDF</button>
+    </div>
   </div>
 
   <div id="pn-area" class="print-area"></div>
@@ -107,6 +116,7 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwAXIgHNvWpROWj74igzeK5nxaq2nSjFOeXrxgLILxJBhkr8HYz6asFsRPVJNNX7lFK/exec';
     let rawData = null;
+    let selectedType = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -119,11 +129,12 @@
     });
 
     function selectSection(type) {
+      selectedType = type;
       document.querySelectorAll('.print-area').forEach(el => el.classList.remove('active'));
       document.getElementById(`${type}-area`).classList.add('active');
       document.querySelectorAll('.bg-white').forEach(el => el.style.borderColor = '#f3f4f6');
       document.getElementById(`card-${type}`).style.borderColor = '#2563eb';
-      document.getElementById('printBtn').classList.remove('hidden');
+      document.getElementById('action-btns').classList.remove('hidden');
     }
 
     const smartFix = (v, div = 1) => {
@@ -142,10 +153,29 @@
       const pnDiv = parseInt(document.getElementById('pnCount').value);
       const pnArea = document.getElementById('pn-area'); pnArea.innerHTML = '';
       for (let i = 1; i <= pnDiv; i++) { pnArea.innerHTML += createPN(rawData, i, pnDiv); }
+      
       const fatDiv = parseInt(document.getElementById('fatCount').value);
       const fatArea = document.getElementById('fat-area'); fatArea.innerHTML = '';
       for (let j = 1; j <= fatDiv; j++) { fatArea.innerHTML += createFat(rawData, j, fatDiv); }
+      
       document.getElementById('bag-area').innerHTML = createBag(rawData);
+    }
+
+    // ฟังก์ชันสร้างไฟล์ PDF
+    function generatePDF() {
+      if (!rawData) return;
+      const element = document.getElementById(`${selectedType}-area`);
+      const filename = `${selectedType}_${rawData.hn}_${rawData.patient_name}.pdf`;
+      
+      const opt = {
+        margin: [0, 0],
+        filename: filename,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
     }
 
     function createPN(o, bNum, div) {
@@ -193,8 +223,8 @@
           <tr><td>11. Soluvit-N</td><td class="text-right">${smartFix(o.soluvit_vol, div)}</td></tr>
           <tr><td>12. อื่นๆ</td><td class="text-right">${smartFix(o.additive_other_volume, div)}</td></tr>
           <tr><td>13. Heparin (1u/ml)</td><td class="text-right">${smartFix(o.heparin_vol, div)}</td></tr>
-          <tr class="big-vol-row"><td colspan="2">Total PN vol: ${smartFix(o.pn_volume, div)} ml</td></tr>
-          <tr class="big-vol-row"><td colspan="2">Total + ไล่สาย ${flushValue}ml: ${smartFix(vPerB + flushValue)} ml</td></tr>
+          <tr class="big-vol-row" style="font-weight:800; background:#fafafa;"><td colspan="2" class="text-right">Total PN vol: ${smartFix(o.pn_volume, div)} ml</td></tr>
+          <tr class="big-vol-row" style="font-weight:800; background:#fafafa;"><td colspan="2" class="text-right">Total + ไล่สาย ${flushValue}ml: ${smartFix(vPerB + flushValue)} ml</td></tr>
           </tbody>
         </table>
         <div class="footer-container">
@@ -265,7 +295,6 @@
           </tr>
           </tbody>
         </table>
-        
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 4px; width: 100%;" contenteditable="true">
           <div style="font-size: 11px; font-weight: 800; text-align: left; line-height: 1.2;">
             Rate: <span style="font-size: 13.5px; font-weight: 900;">${o.fat_rate} ml/hr</span><br>
@@ -273,7 +302,7 @@
           </div>
           <div style="text-align: right; margin-top: -2px;">
             <div style="font-size: 12.5px; font-weight: 900; line-height: 1.1;">
-                หมดอายุ: ${formatThaiDate(exp)}<br>เวลา 18.00 น.
+              หมดอายุ: ${formatThaiDate(exp)}<br>เวลา 18.00 น.
             </div>
           </div>
         </div>
@@ -281,7 +310,6 @@
     }
 
     function createBag(o) {
-      // หน้าถุงลดขนาดลง 5% จากเดิม
       return `<div class="sticker sticker-small flex flex-col items-center justify-center text-center" style="padding: 1.3cm 0.25in 0.1in 0.25in !important;" contenteditable="true">
           <div style="font-size: 47px; font-weight: 900; line-height: 1;">${o.ward}</div>
           <div style="border-top: 3.5px solid #000; border-bottom: 3.5px solid #000; width: 100%; padding: 6px 0; margin: 6px 0;">
