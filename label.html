@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>TPN Master Print | Fixed Version</title>
+  <title>TPN Master Print | Auto-Margin Version</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
@@ -11,15 +11,30 @@
     * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.1; font-weight: 700; }
     
     @media print {
+      /* บังคับระยะขอบกระดาษเป็น 0 ทุกด้าน */
+      @page { margin: 0; }
       body { background: #fff; margin: 0; padding: 0; }
       .no-print { display: none !important; }
       .print-area:not(.active) { display: none !important; }
+      
       .sticker { 
         box-shadow: none !important; 
         border: none !important; 
-        margin: 0 auto !important; 
         page-break-after: always; 
         display: block !important;
+      }
+
+      /* ปรับ Scale ของ PN อัตโนมัติ (ไม่ต้องตั้ง 92% เอง) */
+      #pn-area .sticker-pn {
+        zoom: 0.92;
+        margin: 0 auto !important;
+      }
+
+      /* ปรับ Offset ของ Fat และ Bag (ชดเชย 2mm ที่เคยตั้งค่าเอง) */
+      #fat-area .sticker-small, 
+      #bag-area .sticker-small {
+        margin-top: 2mm !important;
+        zoom: 1.0;
       }
     }
 
@@ -52,12 +67,10 @@
       margin: 10px auto; 
     }
     
-    /* ตาราง PN */
     .pn-table { width: 100%; font-size: 11.5px; border-collapse: collapse; border: 1.5px solid #000; flex-grow: 1; }
     .pn-table td { border: 1px solid #000; padding: 3px 5px; vertical-align: middle; font-weight: 400; } 
     .pn-table th { border: 1.5px solid #000; padding: 4px 5px; vertical-align: middle; font-size: 11px; font-weight: 800; background: #f2f2f2; }
 
-    /* ตาราง FAT (เน้นเข้มพิเศษ) */
     .fat-table-bold { width: 100%; border-collapse: collapse; border: 2px solid #000; font-size: 14px; }
     .fat-table-bold td { border: 2px solid #000; padding: 5px; font-weight: 800; }
 
@@ -78,7 +91,6 @@
     .summary-stack { font-size: 10px; font-weight: 400; line-height: 1.9; text-align: left; padding-left: 2px; margin-bottom: -4px; }
     .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; margin-bottom: 2px; }
     .rate-box-final { border: 2px solid #000; padding: 2px 6px; font-size: 13.5px; font-weight: 900; display: inline-block; white-space: nowrap; }
-    
     .exp-text { font-size: 10.5px; text-align: right; font-weight: 800; line-height: 1.1; margin-top: -3px; }
   </style>
 </head>
@@ -86,7 +98,7 @@
 
   <div class="max-w-4xl mx-auto py-8 px-4 no-print text-center">
     <div class="bg-emerald-100 p-4 rounded-xl mb-6 text-emerald-800 text-sm">
-      ✅ <b>Fixed:</b> แก้ไข Vitalipid Infant/Adult และดึงชื่อยา Other Additive อัตโนมัติ
+      🚀 <b>Smart Print Version:</b> ตั้งค่าระยะขอบและสเกลให้อัตโนมัติ (Margin: 0, PN Scale: 92%)
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -104,7 +116,7 @@
     </div>
 
     <div id="action-btns" class="hidden flex flex-col md:flex-row gap-4 justify-center">
-      <button onclick="window.print()" class="bg-slate-900 text-white py-5 px-10 rounded-3xl font-black text-xl shadow-xl hover:bg-black transition-colors">🖨️ พิมพ์โดยตรง (Browser)</button>
+      <button onclick="window.print()" class="bg-slate-900 text-white py-5 px-10 rounded-3xl font-black text-xl shadow-xl hover:bg-black transition-colors">🖨️ พิมพ์ทันที (ไม่ต้องตั้งค่า)</button>
       <button onclick="generatePDF()" class="bg-blue-600 text-white py-5 px-10 rounded-3xl font-black text-xl shadow-xl hover:bg-blue-700 transition-colors">💾 บันทึกเป็น PDF</button>
     </div>
   </div>
@@ -198,7 +210,6 @@
         return n || "Protein";
       };
 
-      // ส่วน Other Additive Name
       const otherName = o.additive_other_name && o.additive_other_name !== "" ? o.additive_other_name : "อื่นๆ";
 
       return `<div class="sticker sticker-pn">
@@ -269,7 +280,6 @@
         return n || "Fat Emulsion";
       };
 
-      // แก้ไขเรื่อง Vitalipid Infant/Adult (เช็คจากตัวแปร vit_product ตาม Google Script)
       const vitType = o.vit_product ? o.vit_product.toString().toLowerCase() : "";
       const vitDisplay = vitType.includes("infant") ? "✿ Vitalipid N-Infant ✿" : "Vitalipid N-Adult";
 
