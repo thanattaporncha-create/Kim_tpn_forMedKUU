@@ -6,40 +6,99 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ปรับน้ำหนักฟอนต์เริ่มต้นเป็น 700 แต่ในตารางจะถูกคุมด้วยคลาสเฉพาะ */
+    /* ปรับน้ำหนักฟอนต์เริ่มต้นเป็น 700 */
     * { font-family: 'Sarabun', sans-serif; color: #000; line-height: 1.1; font-weight: 700; }
+    
     @media print {
       body { background: #fff; margin: 0; padding: 0; }
       .no-print { display: none !important; }
       .print-area:not(.active) { display: none !important; }
-      .sticker { box-shadow: none !important; border: none !important; margin: 0 !important; page-break-after: always; display: block !important; overflow: hidden; }
+      /* ปรับขนาดองค์รวมเหลือ 90% และจัดการหน้ากระดาษ */
+      .sticker { 
+        box-shadow: none !important; 
+        border: none !important; 
+        margin: 0 auto !important; 
+        page-break-after: always; 
+        display: block !important; 
+        overflow: hidden;
+        transform: scale(0.9);
+        transform-origin: top center;
+      }
     }
+
     [contenteditable="true"]:hover { background: #fff9c4; outline: 1px dashed #ccc; cursor: text; }
     [contenteditable="true"]:focus { background: #fff9c4; outline: 2px solid #2563eb; }
 
-    .sticker-pn { width: 8.5cm; height: 12.9cm; padding: 1.25cm 0.4cm 0.4cm 0.4cm; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; display: flex; flex-direction: column; }
-    .sticker-small { width: 3.5in; height: 2.48in; padding: 1.1cm 0.25in 0.1in 0.25in; box-sizing: border-box; background: white; position: relative; border: 1px solid #000; margin: 10px auto; }
+    /* ปรับระยะขอบบนเพิ่มขึ้น (เดิม 1.25cm เป็น ~1.35cm) */
+    .sticker-pn { 
+      width: 8.5cm; 
+      height: 12.9cm; 
+      padding: 1.35cm 0.4cm 0.4cm 0.4cm; 
+      box-sizing: border-box; 
+      background: white; 
+      position: relative; 
+      border: 1px solid #000; 
+      margin: 10px auto; 
+      display: flex; 
+      flex-direction: column; 
+    }
+
+    /* ปรับระยะขอบบนสติกเกอร์เล็ก (เดิม 1.1cm เป็น ~1.2cm) */
+    .sticker-small { 
+      width: 3.5in; 
+      height: 2.48in; 
+      padding: 1.2cm 0.25in 0.1in 0.25in; 
+      box-sizing: border-box; 
+      background: white; 
+      position: relative; 
+      border: 1px solid #000; 
+      margin: 10px auto; 
+    }
     
-    /* แก้ไขจุดที่ 2: ปรับ CSS ส่วนกลางของตาราง */
     .pn-table { width: 103%; margin-left: -1.5%; font-size: 11.5px; border-collapse: collapse; border: 1px solid #000; flex-grow: 1; }
-    .pn-table td { border: 1px solid #000; padding: 3.2px 5px; vertical-align: middle; : 400; } /* ตัวบาง 400 */
+    .pn-table td { border: 1px solid #000; padding: 3.2px 5px; vertical-align: middle; font-weight: 400; } 
     .pn-table th { border: 1px solid #000; padding: 3.2px 5px; vertical-align: middle; font-size: 11px; font-weight: 800; background: #f2f2f2; }
     
-    /* คลาสสั่งชิดขวาสำหรับตัวเลข */
     .text-right { text-align: right; }
-    
-    /* ตกแต่งแถวสรุปผลรวม */
     .big-vol-row td { font-weight: 800; text-align: right; font-size: 12px; background: #fafafa; }
 
     .header-info { font-size: 13px; font-weight: 800; border-bottom: 2px solid #000; margin-bottom: 4px; }
     .ward-route-info { font-size: 13px; font-weight: 800; border-bottom: 1.2px solid #000; margin-bottom: 6px; padding-bottom: 3px; }
-    .footer-container { display: flex; justify-content: space-between; align-items: flex-end; width: 103%; margin-left: -1.5%; margin-top: 10px; border-top: 1.5px solid #000; padding-top: 8px; }
+    
+    .footer-container { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-end; 
+      width: 103%; 
+      margin-left: -1.5%; 
+      margin-top: 10px; 
+      border-top: 1.5px solid #000; 
+      padding-top: 8px; 
+    }
+
     .summary-stack { font-size: 10px; font-weight: 400; line-height: 2.1; text-align: left; padding-left: 2px; margin-bottom: 0.3cm; }
     .summary-val { font-weight: 800; }
-    .info-box-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+
+    /* ขยับก้อนข้อมูลด้านขวาขึ้นเล็กน้อย */
+    .info-box-right { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: flex-end; 
+      gap: 6px; 
+      margin-bottom: 4px; /* ดันก้นขึ้นเพื่อให้ตัวอักษรขยับขึ้น */
+    }
+
     .rate-box-final { border: 2px solid #000; padding: 3px 8px; font-size: 15px; font-weight: 900; display: inline-block; white-space: nowrap; }
-    .exp-text { font-size: 10px; text-align: right; font-weight: 800; line-height: 1.3; }
-  </style>
+    
+    /* ปรับระยะบรรทัดก้อนวันหมดอายุ */
+    .exp-text { 
+      font-size: 10px; 
+      text-align: right; 
+      font-weight: 800; 
+      line-height: 1.2; 
+      margin-top: -2px; /* ขยับขึ้น 0.2 mm โดยประมาณ */
+    }
+</style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20">
 
@@ -188,68 +247,85 @@
   </div>`;
 }
 
-    function createFat(o, fNum, div) {
-      const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
-      const totalNetFat = parseFloat(o.total_fat_vit_flush) || 0;
-      const vVitTotal = parseFloat(o.vitalipid_vol) || 0;
-      const vFluTotal = parseFloat(o.flush_volume) || 0;
-      const vSmofTotal = totalNetFat - vVitTotal - vFluTotal;
+   function createFat(o, fNum, div) {
+  const exp = new Date(o.order_date); exp.setDate(exp.getDate() + 1);
+  const totalNetFat = parseFloat(o.total_fat_vit_flush) || 0;
+  const vVitTotal = parseFloat(o.vitalipid_vol) || 0;
+  const vFluTotal = parseFloat(o.flush_volume) || 0;
+  const vSmofTotal = totalNetFat - vVitTotal - vFluTotal;
 
-      let vSmof, vVit, vFlu, vTotalSyr;
+  let vSmof, vVit, vFlu, vTotalSyr;
 
-      if (div === 2 && totalNetFat > 250) {
-        if (fNum === 1) { vSmof = 250; vVit = 0; vFlu = 0; vTotalSyr = 250; }
-        else { vSmof = vSmofTotal - 250; vVit = vVitTotal; vFlu = vFluTotal; vTotalSyr = vSmof + vVit + vFlu; }
-      } else {
-        vSmof = vSmofTotal / div; vVit = vVitTotal / div; vFlu = vFluTotal / div; vTotalSyr = totalNetFat / div;
-      }
-
-      const getFatName = (n) => {
-        const name = n?.toLowerCase();
-        if (name === "smof") return "20% SMOF lipid";
-        if (name === "intralipid") return "20% Intralipid";
-        return n || "Fat Emulsion";
-      };
-      const vitDisplay = o.vitalipid_type?.toLowerCase() === "infant" ? "✿ Vitalipid N-Infant ✿" : "Vitalipid N-Adult";
-
-      return `<div class="sticker sticker-small" style="padding-top: calc(1.1cm + 0.5cm) !important;">
-        <div style="font-size: 13.8px; font-weight: 800; text-align: left;" contenteditable="true">HN: ${o.hn} - ${o.patient_name}</div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2px;" contenteditable="true">
-          <div style="font-size: 17.5px; font-weight: 900;">Ward: ${o.ward}</div>
-          <div style="font-size: 18px; font-weight: 900;">${fNum}/${div}</div>
-        </div>
-        <div style="border-bottom: 2.5px solid #000; margin-bottom: 6px; width: 100%;"></div>
-        <table style="width: 103%; margin-left: -1.5%; border: 1px solid #000; font-size: 13.8px; border-collapse: collapse;">
-          <tbody contenteditable="true">
-          <tr>
-            <td style="border: 1px solid #000; padding: 4.5px; font-weight: 400; width: 75%; line-height: 1.2;">
-              ${getFatName(o.fat_product_name)} <strong>${smartFix(vSmof)} ml</strong><br>
-              + ไล่สาย <strong>${smartFix(vFlu)} ml</strong>
-            </td>
-            <td style="border: 1px solid #000; padding: 4.5px; font-weight: 900; text-align: right; width: 25%; font-size: 14.5px;">${smartFix(vSmof + vFlu)}</td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #000; padding: 4.5px; font-weight: 400;">${vitDisplay}</td>
-            <td style="border: 1px solid #000; padding: 4.5px; font-weight: 900; text-align: right;">${smartFix(vVit)}</td>
-          </tr>
-          <tr style="background-color: #f2f2f2;">
-            <td style="border: 1px solid #000; padding: 5.5px; font-weight: 900; text-align: left;">Total volume</td>
-            <td style="border: 1px solid #000; padding: 5.5px; font-weight: 900; text-align: right; font-size: 16px;">${smartFix(vTotalSyr)}</td>
-          </tr>
-          </tbody>
-        </table>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; width: 103%; margin-left: -1.5%;" contenteditable="true">
-          <div style="font-size: 11px; font-weight: 800; text-align: left; line-height: 1.3;">
-            Rate: <span style="font-size: 14.5px; font-weight: 900;">${o.fat_rate} ml/hr</span><br>
-            <span style="font-size: 11px;">วันที่ผลิต: ${formatThaiDate(o.order_date)}</span>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 12.5px; font-weight: 900; color: #000; line-height: 1.2;">หมดอายุ: ${formatThaiDate(exp)}<br>เวลา 18.00 น.</div>
-          </div>
-        </div>
-      </div>`;
+  // --- ปรับลำดับใหม่ตามที่ต้องการ ---
+  if (div === 2 && totalNetFat > 250) {
+    if (fNum === 1) { 
+      // ขวด 1/2: รับส่วนที่เหลือจากขวดเต็ม + วิตามิน + ไล่สาย
+      vSmof = vSmofTotal - 250; 
+      vVit = vVitTotal; 
+      vFlu = vFluTotal; 
+      vTotalSyr = vSmof + vVit + vFlu; 
     }
+    else { 
+      // ขวด 2/2: เป็นขวดเต็ม 250 ml (เฉพาะ SMOF)
+      vSmof = 250; 
+      vVit = 0; 
+      vFlu = 0; 
+      vTotalSyr = 250; 
+    }
+  } else {
+    // กรณีแบ่งปกติ หรือขวดเดียว
+    vSmof = vSmofTotal / div; vVit = vVitTotal / div; vFlu = vFluTotal / div; vTotalSyr = totalNetFat / div;
+  }
 
+  const getFatName = (n) => {
+    const name = n?.toLowerCase();
+    if (name === "smof") return "20% SMOF lipid";
+    if (name === "intralipid") return "20% Intralipid";
+    return n || "Fat Emulsion";
+  };
+  const vitDisplay = o.vitalipid_type?.toLowerCase() === "infant" ? "✿ Vitalipid N-Infant ✿" : "Vitalipid N-Adult";
+
+  return `<div class="sticker sticker-small">
+    <div style="font-size: 13.8px; font-weight: 800; text-align: left;" contenteditable="true">HN: ${o.hn} - ${o.patient_name}</div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1px;" contenteditable="true">
+      <div style="font-size: 17.5px; font-weight: 900;">Ward: ${o.ward}</div>
+      <div style="font-size: 18px; font-weight: 900;">${fNum}/${div}</div>
+    </div>
+    <div style="border-bottom: 2.5px solid #000; margin-bottom: 5px; width: 100%;"></div>
+    <table style="width: 103%; margin-left: -1.5%; border: 1px solid #000; font-size: 13.8px; border-collapse: collapse;">
+      <tbody contenteditable="true">
+      <tr>
+        <td style="border: 1px solid #000; padding: 4.5px; font-weight: 400; width: 75%; line-height: 1.2;">
+          ${getFatName(o.fat_product_name)} <strong>${smartFix(vSmof)} ml</strong><br>
+          + ไล่สาย <strong>${smartFix(vFlu)} ml</strong>
+        </td>
+        <td style="border: 1px solid #000; padding: 4.5px; font-weight: 900; text-align: right; width: 25%; font-size: 14.5px;">${smartFix(vSmof + vFlu)}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #000; padding: 4.5px; font-weight: 400;">${vVit > 0 ? vitDisplay : '-'}</td>
+        <td style="border: 1px solid #000; padding: 4.5px; font-weight: 900; text-align: right;">${smartFix(vVit)}</td>
+      </tr>
+      <tr style="background-color: #f2f2f2;">
+        <td style="border: 1px solid #000; padding: 5.5px; font-weight: 900; text-align: left;">Total volume</td>
+        <td style="border: 1px solid #000; padding: 5.5px; font-weight: 900; text-align: right; font-size: 16px;">${smartFix(vTotalSyr)}</td>
+      </tr>
+      </tbody>
+    </table>
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 2px; width: 103%; margin-left: -1.5%;" contenteditable="true">
+      <div style="font-size: 11px; font-weight: 800; text-align: left; line-height: 1.2;">
+        Rate: <span style="font-size: 14.5px; font-weight: 900;">${o.fat_rate} ml/hr</span><br>
+        <span style="font-size: 10px;">เตรียม: ${formatThaiDate(o.order_date)}</span>
+      </div>
+      <div style="text-align: right; margin-top: -1px;">
+        <div style="font-size: 12.5px; font-weight: 900; color: #000; line-height: 1.1;">
+            หมดอายุ: ${formatThaiDate(exp)}<br>
+            เวลา 18.00 น.
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
     function createBag(o) {
       return `<div class="sticker sticker-small flex flex-col items-center justify-center text-center" style="padding-top: calc(1.1cm + 0.5cm) !important;" contenteditable="true">
           <div style="font-size: 50.5px; font-weight: 900; line-height: 1;">${o.ward}</div>
